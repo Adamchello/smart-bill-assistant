@@ -1,5 +1,6 @@
 import Image, { type ImageProps } from "next/image";
 import { Button } from "@repo/ui/button";
+import { Card } from "@repo/ui/card";
 import styles from "./page.module.css";
 
 type Props = Omit<ImageProps, "src"> & {
@@ -66,6 +67,9 @@ export default function Home() {
         <Button appName="web" className={styles.secondary}>
           Open alert
         </Button>
+        <Card title="Card" href="https://www.google.com">
+          Card
+        </Card>
       </main>
       <footer className={styles.footer}>
         <a
