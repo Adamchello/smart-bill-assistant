@@ -29,7 +29,7 @@ This dual approach transforms financial management from reactive tracking into a
 
 4. Core Features (The "Minimum" in MVP)
 
-- **Bill Forecasting Engine**: 
+- **Bill Forecasting Engine**:
   - Analyzes historical bill data to identify patterns (seasonality, trends, anomalies)
   - Predicts future bill amounts for each recurring expense category
   - Factors in known rate changes, contract renewals, and seasonal variations
@@ -71,6 +71,7 @@ This dual approach transforms financial management from reactive tracking into a
 - Percentage of users who take action based on insights (e.g., cancel subscriptions, adjust usage)
 
 **Overall MVP Metrics:**
+
 - Number of active users within first 3 months
 - Percentage of users connecting at least 3 recurring bills
 - User feedback scores (ease of use, usefulness, perceived value)
@@ -83,7 +84,6 @@ This dual approach transforms financial management from reactive tracking into a
   - "How accurate were the bill forecasts?"
   - "Did the behavioral insights help you understand your spending?"
   - "Which feature was more valuable: forecasting or behavioral insights?"
-  
 - User interviews with early adopters (10-15 users) to capture:
   - Detailed feedback on forecast accuracy and usefulness
   - Understanding of behavioral insights and their impact on decision-making
@@ -125,6 +125,7 @@ This dual approach transforms financial management from reactive tracking into a
 - **Feature Complexity**: Users may find the combination of forecasting and insights overwhelming in an MVP.
 
 **Mitigation Strategies:**
+
 - Start with manual data entry to validate value before requiring account connections
 - Provide clear confidence intervals and explain forecast limitations
 - Focus on most impactful insights first, avoid information overload
