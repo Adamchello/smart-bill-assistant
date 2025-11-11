@@ -1,12 +1,15 @@
 ---
+export const prerender = false
+
 import MainLayout from "../layouts/main.astro"
 import { supabase } from "../lib/supabase"
+import { DashboardContent } from "../components/dashboard-content"
 
 const accessToken = Astro.cookies.get("sb-access-token")
 const refreshToken = Astro.cookies.get("sb-refresh-token")
 
 if (!accessToken || !refreshToken) {
-  return Astro.redirect("/signin")
+  return Astro.redirect("/")
 }
 
 let session
@@ -22,7 +25,7 @@ try {
     Astro.cookies.delete("sb-refresh-token", {
       path: "/",
     })
-    return Astro.redirect("/signin")
+    return Astro.redirect("/")
   }
 } catch (error) {
   Astro.cookies.delete("sb-access-token", {
@@ -31,16 +34,12 @@ try {
   Astro.cookies.delete("sb-refresh-token", {
     path: "/",
   })
-  return Astro.redirect("/signin")
+  return Astro.redirect("/")
 }
 
 const email = session.data.user?.email
 ---
 
 <MainLayout title="dashboard">
-  <h1>Welcome {email}</h1>
-  <p>We are happy to see you here</p>
-  <form action="/api/auth/signout">
-    <button type="submit">Sign out</button>
-  </form>
+  <DashboardContent email={email} client:load />
 </MainLayout>

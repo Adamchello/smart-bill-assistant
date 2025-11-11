@@ -1,23 +1,67 @@
 ---
-import "../styles/global.css"
-import { Button } from "@/components/ui/button"
+import MainLayout from "../layouts/main.astro"
+import {
+  FieldGroup,
+  Field,
+  FieldLabel,
+  FieldDescription,
+} from "../components/ui/field"
+import { Button } from "../components/ui/button"
+import { Input } from "../components/ui/input"
+import { cn } from "../lib/utils"
+
+const { cookies, redirect } = Astro
+
+const accessToken = cookies.get("sb-access-token")
+const refreshToken = cookies.get("sb-refresh-token")
+
+if (accessToken && refreshToken) {
+  return redirect("/dashboard")
+}
 ---
 
-<html lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <meta name="generator" content={Astro.generator} />
-    <title>Astro + TailwindCSS</title>
-  </head>
-
-  <body>
-    <div class="grid place-items-center h-screen content-center">
-      <Button>Shadcn Button</Button>
-      <a href="/markdown-page" class="p-4 underline"
-        >Markdown is also supported...</a
-      >
+<MainLayout title="Sign in">
+  <div
+    class="bg-background flex min-h-svh flex-col items-center justify-center gap-6 p-6 md:p-10"
+  >
+    <div class="w-full max-w-sm">
+      <div class={cn("flex flex-col gap-6")}>
+        <form action="/api/auth/signin" method="post">
+          <FieldGroup client:load>
+            <div class="flex flex-col items-center gap-2 text-center">
+              <h1 class="text-xl font-bold">Welcome to Smart Bill Assistant</h1>
+              <FieldDescription client:load>
+                Don&apos;t have an account? <a href="/register">Sign up</a>
+              </FieldDescription>
+            </div>
+            <Field client:load>
+              <FieldLabel htmlFor="email" client:load>Email</FieldLabel>
+              <Input
+                id="email"
+                name="email"
+                type="email"
+                placeholder="m@example.com"
+                required
+                client:load
+              />
+            </Field>
+            <Field client:load>
+              <FieldLabel htmlFor="password" client:load>Password</FieldLabel>
+              <Input
+                id="password"
+                name="password"
+                type="password"
+                placeholder="********"
+                required
+                client:load
+              />
+            </Field>
+            <Field client:load>
+              <Button type="submit" client:load>Login</Button>
+            </Field>
+          </FieldGroup>
+        </form>
+      </div>
     </div>
-  </body>
-</html>
+  </div>
+</MainLayout>
