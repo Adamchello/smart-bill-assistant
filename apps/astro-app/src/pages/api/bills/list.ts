@@ -2,15 +2,25 @@ export const prerender = false;
 import type { APIRoute } from "astro";
 import { supabase } from "../../../lib/supabase";
 import { ApiError, ApiResponse } from "../../../lib/api-response";
+import { createSupabaseServerClient } from "@/kernel/db/supabase-server";
 
-export const GET: APIRoute = async ({ locals }) => {
-  if (!locals.user) return ApiError("Unauthorized", 401);
+export const GET: APIRoute = async (context) => {
+  const supabase = createSupabaseServerClient(context);
+
+  const {
+    data: { user },
+    error: userError,
+  } = await supabase.auth.getUser();
+
+  if (userError || !user) {
+    return new Response("Unauthorized", { status: 401 });
+  }
 
   try {
     const { data, error } = await supabase
       .from("bills")
       .select("*")
-      .eq("user_id", locals.user.id)
+      .eq("user_id", user.id)
       .order("date", { ascending: false })
       .order("created_at", { ascending: false });
 

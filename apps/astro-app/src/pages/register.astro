@@ -1,57 +1,23 @@
 ---
+import { createSupabaseServerClient } from "@/kernel/db/supabase-server"
 import MainLayout from "../layouts/main.astro"
-import {
-  FieldGroup,
-  Field,
-  FieldLabel,
-  FieldDescription,
-} from "../components/ui/field"
-import { Button } from "../components/ui/button"
-import { Input } from "../components/ui/input"
-import { cn } from "../lib/utils"
+import { RegisterShell } from "@/shells/register/shell"
+import { AppRouter } from "@/kernel/routing/app-router"
+
+const supabase = createSupabaseServerClient({
+  request: Astro.request,
+  cookies: Astro.cookies,
+})
+
+const {
+  data: { user },
+} = await supabase.auth.getUser()
+
+if (user) {
+  return Astro.redirect(AppRouter.getPath("dashboard"))
+}
 ---
 
 <MainLayout title="Register">
-  <div
-    class="bg-background flex min-h-svh flex-col items-center justify-center gap-6 p-6 md:p-10"
-  >
-    <div class="w-full max-w-sm">
-      <div class={cn("flex flex-col gap-6")}>
-        <form action="/api/auth/register" method="post">
-          <FieldGroup client:load>
-            <div class="flex flex-col items-center gap-2 text-center">
-              <FieldDescription client:load>
-                Already have an account? <a href="/">Sign in</a>
-              </FieldDescription>
-            </div>
-            <Field client:load>
-              <FieldLabel htmlFor="email" client:load>Email</FieldLabel>
-              <Input
-                id="email"
-                name="email"
-                type="email"
-                placeholder="m@example.com"
-                required
-                client:load
-              />
-            </Field>
-            <Field client:load>
-              <FieldLabel htmlFor="password" client:load>Password</FieldLabel>
-              <Input
-                id="password"
-                name="password"
-                type="password"
-                placeholder="********"
-                required
-                client:load
-              />
-            </Field>
-            <Field client:load>
-              <Button type="submit" client:load>Register</Button>
-            </Field>
-          </FieldGroup>
-        </form>
-      </div>
-    </div>
-  </div>
+  <RegisterShell client:load />
 </MainLayout>

@@ -6,10 +6,7 @@ import { Button } from "@/components/ui/button";
 import { BillEntryForm } from "@/components/bill-entry-form";
 import { BillHistory, type Bill } from "@/components/bill-history";
 import { queryClient } from "../lib/query-client";
-
-interface DashboardContentProps {
-  email?: string;
-}
+import { useAuth } from "@/kernel/auth/use-auth";
 
 const getBills = async (): Promise<Bill[]> => {
   const response = await fetch("/api/bills/list");
@@ -20,8 +17,10 @@ const getBills = async (): Promise<Bill[]> => {
   return data.data || [];
 };
 
-export function DashboardContent({ email }: DashboardContentProps) {
+export function DashboardContent() {
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const auth = useAuth();
+  const email = auth.status === "authenticated" ? auth.user?.email : "";
 
   const query = useQuery(
     {

@@ -3,6 +3,7 @@ import type { APIRoute } from "astro";
 import { z } from "zod";
 import { supabase } from "../../../lib/supabase";
 import { ApiError, ApiResponse } from "../../../lib/api-response";
+import { createSupabaseServerClient } from "@/kernel/db/supabase-server";
 
 const createBillSchema = z.object({
   amount: z
@@ -32,11 +33,20 @@ const createBillSchema = z.object({
   category: z.string().optional().default("Uncategorized"),
 });
 
-export const POST: APIRoute = async ({ request, locals }) => {
-  if (!locals.user) return ApiError("Unauthorized", 401);
+export const POST: APIRoute = async (context) => {
+  const supabase = createSupabaseServerClient(context);
+
+  const {
+    data: { user },
+    error: userError,
+  } = await supabase.auth.getUser();
+
+  if (userError || !user) {
+    return new Response("Unauthorized", { status: 401 });
+  }
 
   try {
-    const body = await request.json();
+    const body = await context.request.json();
 
     const validationResult = createBillSchema.safeParse(body);
 
@@ -57,7 +67,7 @@ export const POST: APIRoute = async ({ request, locals }) => {
     const { data, error } = await supabase
       .from("bills")
       .insert({
-        user_id: locals.user.id,
+        user_id: user.id,
         amount: amount,
         date: date,
         provider_name: providerName,
