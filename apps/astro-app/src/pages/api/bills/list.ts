@@ -1,6 +1,5 @@
 export const prerender = false;
 import type { APIRoute } from "astro";
-import { supabase } from "../../../lib/supabase";
 import { ApiError, ApiResponse } from "../../../lib/api-response";
 import { createSupabaseServerClient } from "@/kernel/db/supabase-server";
 

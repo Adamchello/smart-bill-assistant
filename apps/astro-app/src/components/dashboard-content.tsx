@@ -4,9 +4,11 @@ import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { BillEntryForm } from "@/components/bill-entry-form";
+import { BillImport } from "@/components/bill-import";
 import { BillHistory, type Bill } from "@/components/bill-history";
 import { queryClient } from "../lib/query-client";
 import { useAuth } from "@/kernel/auth/use-auth";
+import { Upload } from "lucide-react";
 
 const getBills = async (): Promise<Bill[]> => {
   const response = await fetch("/api/bills/list");
@@ -19,6 +21,7 @@ const getBills = async (): Promise<Bill[]> => {
 
 export function DashboardContent() {
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isImportOpen, setIsImportOpen] = useState(false);
   const auth = useAuth();
   const email = auth.status === "authenticated" ? auth.user?.email : "";
 
@@ -53,11 +56,16 @@ export function DashboardContent() {
         </form>
       </div>
 
-      <div className="mb-6">
+      <div className="mb-6 flex gap-3">
         <Button onClick={() => setIsModalOpen(true)}>Add Bill</Button>
+        <Button variant="outline" onClick={() => setIsImportOpen(true)}>
+          <Upload className="h-4 w-4" />
+          Import Bills
+        </Button>
       </div>
 
       <BillEntryForm open={isModalOpen} onOpenChange={handleModalClose} />
+      <BillImport open={isImportOpen} onOpenChange={setIsImportOpen} />
 
       {query.error && (
         <div className="rounded-md bg-destructive/10 border border-destructive/20 p-3 mb-6">

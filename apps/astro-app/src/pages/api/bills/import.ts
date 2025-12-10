@@ -1,8 +1,13 @@
 export const prerender = false;
 import type { APIRoute } from "astro";
+import { z } from "zod";
 import { ApiError, ApiResponse } from "../../../lib/api-response";
 import { createSupabaseServerClient } from "@/kernel/db/supabase-server";
 import { billSchema } from "@/lib/schemas/bill";
+
+const importBillsSchema = z.object({
+  bills: z.array(billSchema).min(1, "At least one bill is required"),
+});
 
 export const POST: APIRoute = async (context) => {
   const supabase = createSupabaseServerClient(context);
@@ -19,7 +24,7 @@ export const POST: APIRoute = async (context) => {
   try {
     const body = await context.request.json();
 
-    const validationResult = billSchema.safeParse(body);
+    const validationResult = importBillsSchema.safeParse(body);
 
     if (!validationResult.success) {
       const firstError = validationResult.error.errors[0];
@@ -32,29 +37,38 @@ export const POST: APIRoute = async (context) => {
       );
     }
 
-    const { amount, date, providerName, description, category } =
-      validationResult.data;
+    const { bills } = validationResult.data;
+
+    // Prepare bills for insertion
+    const billsToInsert = bills.map((bill) => ({
+      user_id: user.id,
+      amount: bill.amount,
+      date: bill.date,
+      provider_name: bill.providerName,
+      description: bill.description || null,
+      category: bill.category,
+      created_at: new Date().toISOString(),
+    }));
 
     const { data, error } = await supabase
       .from("bills")
-      .insert({
-        user_id: user.id,
-        amount: amount,
-        date: date,
-        provider_name: providerName,
-        description: description || null,
-        category: category,
-        created_at: new Date().toISOString(),
-      })
-      .select()
-      .single();
+      .insert(billsToInsert)
+      .select();
 
     if (error) {
-      console.error("Error creating bill:", error);
-      return ApiError("Failed to save bill", 500, error.message);
+      console.error("Error importing bills:", error);
+      return ApiError(
+        "Failed to import bills. No bills were saved.",
+        500,
+        error.message,
+      );
     }
 
-    return ApiResponse(data, 201, "Bill saved successfully");
+    return ApiResponse(
+      { imported: data?.length || 0 },
+      201,
+      `Successfully imported ${data?.length || 0} bills`,
+    );
   } catch (error) {
     console.error("Unexpected error:", error);
     return ApiError("Internal server error", 500);
