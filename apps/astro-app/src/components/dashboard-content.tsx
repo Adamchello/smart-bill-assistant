@@ -9,6 +9,8 @@ import { BillHistory, type Bill } from "@/components/bill-history";
 import { queryClient } from "../lib/query-client";
 import { useAuth } from "@/kernel/auth/use-auth";
 import { Upload } from "lucide-react";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { BillForecasts } from "@/components/bill-forecasts";
 
 const getBills = async (): Promise<Bill[]> => {
   const response = await fetch("/api/bills/list");
@@ -77,18 +79,29 @@ export function DashboardContent() {
         </div>
       )}
 
-      {query.isLoading ? (
-        <div className="rounded-lg border border-border bg-card p-8 text-center">
-          <p className="text-muted-foreground">Loading bills...</p>
-        </div>
-      ) : (
-        <BillHistory
-          bills={query.data || []}
-          onRefresh={() =>
-            queryClient.invalidateQueries({ queryKey: ["bills"] })
-          }
-        />
-      )}
+      <Tabs defaultValue="history">
+        <TabsList>
+          <TabsTrigger value="history">History</TabsTrigger>
+          <TabsTrigger value="forecasts">Forecasts</TabsTrigger>
+        </TabsList>
+        <TabsContent value="history">
+          {query.isLoading ? (
+            <div className="rounded-lg border border-border bg-card p-8 text-center">
+              <p className="text-muted-foreground">Loading bills...</p>
+            </div>
+          ) : (
+            <BillHistory
+              bills={query.data || []}
+              onRefresh={() =>
+                queryClient.invalidateQueries({ queryKey: ["bills"] })
+              }
+            />
+          )}
+        </TabsContent>
+        <TabsContent value="forecasts">
+          <BillForecasts />
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }

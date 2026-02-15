@@ -7,7 +7,9 @@
       "Bash(npx turbo:*)",
       "Bash(npx tsc:*)",
       "Bash(npm run build:*)",
-      "Bash(curl:*)"
+      "Bash(curl:*)",
+      "Bash(xargs:*)",
+      "Bash(npx astro check:*)"
     ],
     "deny": [],
     "ask": []
