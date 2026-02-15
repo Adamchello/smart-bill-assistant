@@ -11,6 +11,7 @@ import { useAuth } from "@/kernel/auth/use-auth";
 import { Upload } from "lucide-react";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { BillForecasts } from "@/components/bill-forecasts";
+import { BillInsights } from "@/components/bill-insights";
 
 const getBills = async (): Promise<Bill[]> => {
   const response = await fetch("/api/bills/list");
@@ -83,6 +84,7 @@ export function DashboardContent() {
         <TabsList>
           <TabsTrigger value="history">History</TabsTrigger>
           <TabsTrigger value="forecasts">Forecasts</TabsTrigger>
+          <TabsTrigger value="insights">Insights</TabsTrigger>
         </TabsList>
         <TabsContent value="history">
           {query.isLoading ? (
@@ -100,6 +102,9 @@ export function DashboardContent() {
         </TabsContent>
         <TabsContent value="forecasts">
           <BillForecasts />
+        </TabsContent>
+        <TabsContent value="insights">
+          <BillInsights />
         </TabsContent>
       </Tabs>
     </div>
