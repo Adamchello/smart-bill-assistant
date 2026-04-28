@@ -5,8 +5,8 @@
  * or sentiments, edit this single file.
  */
 
-import type { Category } from "@/components/category-selector";
-import type { Insight } from "@/types/insights";
+import type { Category } from "@/modules/bill-management/models/category";
+import type { Insight } from "@/modules/bill-management/models/insights";
 import { roundCents } from "../bill-math";
 
 // ── 1. Spending spike (priority 1) ──────────────────────────────────────────

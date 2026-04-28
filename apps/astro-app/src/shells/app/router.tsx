@@ -1,4 +1,4 @@
-import { DashboardContent } from "@/components/dashboard-content";
+import { DashboardContent } from "./dashboard-content";
 import {
   createRouter,
   createRoute,

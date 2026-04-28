@@ -11,7 +11,7 @@
  *   Optimisation insights: 7–9
  */
 
-import type { InsightsResponse } from "@/types/insights";
+import type { InsightsResponse } from "@/modules/bill-management/models/insights";
 import { getMonthSpan, type BillInput } from "../bill-math";
 import { bucketBills } from "./helpers";
 import {

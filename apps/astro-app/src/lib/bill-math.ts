@@ -2,7 +2,7 @@
  * Shared math & date utilities used by both the forecasting and insights engines.
  */
 
-import type { Category } from "@/components/category-selector";
+import type { Category } from "@/modules/bill-management/models/category";
 
 // ── Shared types ────────────────────────────────────────────────────────────
 

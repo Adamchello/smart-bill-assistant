@@ -1,6 +1,6 @@
 export const prerender = false;
 import type { APIRoute } from "astro";
-import { suggestCategory } from "../../../lib/category-suggestion";
+import { suggestCategory } from "@/modules/bill-management/core/category-suggestion";
 import { ApiError, ApiResponse } from "../../../lib/api-response";
 import { createSupabaseServerClient } from "@/kernel/db/supabase-server";
 
