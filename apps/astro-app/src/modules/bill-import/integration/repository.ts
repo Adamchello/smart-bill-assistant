@@ -2,6 +2,7 @@ import type { ParsedBillRow } from "../domain/bill-import";
 
 export const importBills = async (
   bills: ParsedBillRow[],
+  signal?: AbortSignal,
 ): Promise<{ imported: number }> => {
   const response = await fetch("/api/bills/import", {
     method: "POST",
@@ -15,6 +16,7 @@ export const importBills = async (
         category: bill.category,
       })),
     }),
+    signal,
   });
 
   if (!response.ok) {

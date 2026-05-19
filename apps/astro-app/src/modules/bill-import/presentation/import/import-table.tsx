@@ -11,9 +11,8 @@ import {
 } from "@/components/ui/select";
 import { Trash2 } from "lucide-react";
 import type { ParsedBillRow } from "../../domain/bill-import";
-import type { Category } from "@/modules/bill-management/domain/category";
-import { CATEGORIES } from "@/modules/bill-management/domain/category";
-import { CATEGORY_COLORS } from "@/modules/bill-management/core/category-colors";
+import type { Category } from "../../domain/bill-import";
+import { CATEGORIES, CATEGORY_COLORS } from "@/shared/configuration/category";
 
 interface ImportTableProps {
   rows: ParsedBillRow[];

@@ -1,0 +1,16 @@
+export type Category =
+  | "Utilities"
+  | "Housing"
+  | "Food"
+  | "Transportation"
+  | "Subscriptions"
+  | "Healthcare"
+  | "Insurance"
+  | "Loans"
+  | "Entertainment"
+  | "Shopping"
+  | "Services"
+  | "Education"
+  | "Charity"
+  | "Pets"
+  | "Uncategorized";

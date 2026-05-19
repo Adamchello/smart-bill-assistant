@@ -1,104 +1,18 @@
 "use client";
 
-import { CATEGORY_COLORS, formatCurrency } from "../core/category-colors";
+import { CATEGORY_COLORS } from "@/shared/configuration/category";
+import { formatCurrency, formatDate, formatMonth } from "@/shared/format";
 import { cn } from "@/lib/utils";
-import {
-  TrendingUp,
-  TrendingDown,
-  AlertTriangle,
-  Calendar,
-  PlusCircle,
-  Layers,
-  BarChart3,
-  Target,
-  PieChart,
-  Lightbulb,
-} from "lucide-react";
-import type { LucideIcon } from "lucide-react";
 import type { Bill } from "../domain/bill";
-import type { ForecastResponse } from "../domain/forecast";
-import type {
-  InsightsResponse,
-  Insight,
-  InsightIconHint,
-  InsightSentiment,
-} from "../domain/insights";
 import type { Category } from "../domain/category";
-import { useForecasts } from "../integration/hooks";
-import { useInsights } from "../integration/hooks";
-
-// ── Helpers ─────────────────────────────────────────────────────────────────
-
-function formatMonth(monthKey: string): string {
-  const [year, month] = monthKey.split("-");
-  const date = new Date(parseInt(year), parseInt(month) - 1, 1);
-  return date.toLocaleDateString("en-US", { month: "short", year: "numeric" });
-}
-
-function formatDate(dateString: string): string {
-  const date = new Date(dateString);
-  return date.toLocaleDateString("en-US", {
-    year: "numeric",
-    month: "short",
-    day: "numeric",
-  });
-}
-
-const ICON_MAP: Record<InsightIconHint, LucideIcon> = {
-  "trending-up": TrendingUp,
-  "trending-down": TrendingDown,
-  "alert-triangle": AlertTriangle,
-  calendar: Calendar,
-  "plus-circle": PlusCircle,
-  layers: Layers,
-  "bar-chart": BarChart3,
-  target: Target,
-  "pie-chart": PieChart,
-  lightbulb: Lightbulb,
-};
-
-const SENTIMENT_STYLES: Record<
-  InsightSentiment,
-  { border: string; bg: string; iconColor: string }
-> = {
-  positive: {
-    border: "border-green-500/20",
-    bg: "bg-green-500/5",
-    iconColor: "text-green-600 dark:text-green-400",
-  },
-  negative: {
-    border: "border-red-500/20",
-    bg: "bg-red-500/5",
-    iconColor: "text-red-600 dark:text-red-400",
-  },
-  warning: {
-    border: "border-yellow-500/20",
-    bg: "bg-yellow-500/5",
-    iconColor: "text-yellow-600 dark:text-yellow-400",
-  },
-  neutral: {
-    border: "border-border",
-    bg: "bg-card",
-    iconColor: "text-muted-foreground",
-  },
-};
-
-function BoldNumbers({ text }: { text: string }) {
-  const parts = text.split(/(\$[\d,]+(?:\.\d+)?(?:\/mo)?|\d+%)/g);
-  return (
-    <>
-      {parts.map((part, i) =>
-        /^\$[\d,]+(?:\.\d+)?(?:\/mo)?$|^\d+%$/.test(part) ? (
-          <span key={i} className="font-semibold text-foreground">
-            {part}
-          </span>
-        ) : (
-          part
-        ),
-      )}
-    </>
-  );
-}
+import { useForecasts } from "@/modules/bill-forecasts/core/store";
+import { useInsights } from "@/modules/bill-insights/core/store";
+import {
+  ICON_MAP,
+  SENTIMENT_STYLES,
+} from "@/modules/bill-insights/presentation/insight-icons";
+import { BoldNumbers } from "@/modules/bill-insights/presentation/bold-numbers";
+import type { Insight } from "@/modules/bill-insights/domain/insights";
 
 // ── Component ───────────────────────────────────────────────────────────────
 

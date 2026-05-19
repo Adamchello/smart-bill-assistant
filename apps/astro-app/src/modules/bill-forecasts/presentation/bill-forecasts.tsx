@@ -1,16 +1,11 @@
 "use client";
 
-import { CATEGORY_COLORS, formatCurrency } from "../core/category-colors";
+import { CATEGORY_COLORS } from "@/shared/configuration/category";
+import { formatCurrency, formatMonth } from "@/shared/format";
 import { Separator } from "@/components/ui/separator";
 import { TrendingUp, TrendingDown, Minus, AlertTriangle } from "lucide-react";
 import type { ForecastResponse } from "../domain/forecast";
-import { useForecasts } from "../integration/hooks";
-
-function formatMonth(monthKey: string): string {
-  const [year, month] = monthKey.split("-");
-  const date = new Date(parseInt(year), parseInt(month) - 1, 1);
-  return date.toLocaleDateString("en-US", { month: "short", year: "numeric" });
-}
+import { useForecasts } from "../core/store";
 
 function TrendIcon({
   trend,

@@ -1,246 +1,6 @@
 import type { Category } from "../domain/category";
+import { CATEGORY_KEYWORDS } from "../configuration/constraints";
 
-// Keyword mappings for category suggestions
-const CATEGORY_KEYWORDS: Record<Category, string[]> = {
-  Utilities: [
-    "electric",
-    "electricity",
-    "power",
-    "energy",
-    "utility",
-    "utilities",
-    "water",
-    "sewer",
-    "gas",
-    "natural gas",
-    "internet",
-    "wifi",
-    "broadband",
-    "phone",
-    "telephone",
-    "mobile",
-    "cellular",
-    "cable",
-    "tv",
-    "television",
-    "trash",
-    "garbage",
-    "waste",
-    "recycling",
-    "sanitation",
-  ],
-  Housing: [
-    "rent",
-    "rental",
-    "mortgage",
-    "loan",
-    "home loan",
-    "hoa",
-    "homeowners",
-    "property tax",
-    "property taxes",
-    "home insurance",
-    "homeowner insurance",
-    "property insurance",
-    "landlord",
-    "apartment",
-    "condo",
-    "housing",
-  ],
-  Food: [
-    "grocery",
-    "groceries",
-    "supermarket",
-    "food",
-    "restaurant",
-    "dining",
-    "delivery",
-    "doordash",
-    "ubereats",
-    "grubhub",
-    "coffee",
-    "starbucks",
-    "cafe",
-    "bakery",
-    "pizza",
-    "fast food",
-    "takeout",
-  ],
-  Transportation: [
-    "car",
-    "auto",
-    "vehicle",
-    "automobile",
-    "car payment",
-    "auto loan",
-    "car insurance",
-    "auto insurance",
-    "gas",
-    "fuel",
-    "petrol",
-    "gasoline",
-    "parking",
-    "transit",
-    "metro",
-    "subway",
-    "bus",
-    "train",
-    "uber",
-    "lyft",
-    "rideshare",
-    "taxi",
-    "transportation",
-  ],
-  Subscriptions: [
-    "netflix",
-    "spotify",
-    "apple",
-    "music",
-    "streaming",
-    "subscription",
-    "prime",
-    "amazon prime",
-    "hulu",
-    "disney",
-    "disney+",
-    "hbo",
-    "max",
-    "paramount",
-    "peacock",
-    "youtube",
-    "premium",
-    "software",
-    "saas",
-    "membership",
-    "gym",
-    "fitness",
-    "club",
-  ],
-  Healthcare: [
-    "health",
-    "healthcare",
-    "medical",
-    "doctor",
-    "physician",
-    "hospital",
-    "clinic",
-    "pharmacy",
-    "drug",
-    "prescription",
-    "dental",
-    "dentist",
-    "vision",
-    "eye",
-    "optometrist",
-    "insurance",
-    "health insurance",
-    "medical insurance",
-  ],
-  Insurance: [
-    "life insurance",
-    "disability insurance",
-    "pet insurance",
-    "insurance",
-  ],
-  Loans: [
-    "student loan",
-    "student loans",
-    "personal loan",
-    "credit card",
-    "loan payment",
-    "debt",
-    "financing",
-  ],
-  Entertainment: [
-    "movie",
-    "movies",
-    "cinema",
-    "theater",
-    "concert",
-    "ticket",
-    "tickets",
-    "game",
-    "games",
-    "gaming",
-    "hobby",
-    "hobbies",
-    "recreation",
-    "sports",
-    "entertainment",
-  ],
-  Shopping: [
-    "retail",
-    "store",
-    "shop",
-    "shopping",
-    "amazon",
-    "online",
-    "purchase",
-    "clothing",
-    "clothes",
-    "apparel",
-    "household",
-    "items",
-    "merchandise",
-  ],
-  Services: [
-    "legal",
-    "lawyer",
-    "attorney",
-    "accounting",
-    "accountant",
-    "consulting",
-    "consultant",
-    "repair",
-    "maintenance",
-    "service",
-    "services",
-    "plumber",
-    "electrician",
-    "contractor",
-  ],
-  Education: [
-    "tuition",
-    "school",
-    "university",
-    "college",
-    "education",
-    "course",
-    "courses",
-    "training",
-    "book",
-    "books",
-    "textbook",
-    "learning",
-  ],
-  Charity: [
-    "donation",
-    "donations",
-    "charity",
-    "charitable",
-    "giving",
-    "nonprofit",
-    "foundation",
-    "fundraiser",
-  ],
-  Pets: [
-    "pet",
-    "pets",
-    "dog",
-    "cat",
-    "veterinary",
-    "vet",
-    "animal",
-    "pet food",
-    "pet supplies",
-    "pet store",
-  ],
-  Uncategorized: [],
-};
-
-/**
- * Suggests a category based on provider name using keyword matching
- */
 export function suggestCategory(providerName: string): Category {
   if (!providerName || !providerName.trim()) {
     return "Uncategorized";
@@ -248,7 +8,6 @@ export function suggestCategory(providerName: string): Category {
 
   const normalizedProvider = providerName.toLowerCase().trim();
 
-  // Count matches for each category
   const categoryScores: Record<Category, number> = {
     Utilities: 0,
     Housing: 0,
@@ -267,7 +26,6 @@ export function suggestCategory(providerName: string): Category {
     Uncategorized: 0,
   };
 
-  // Score each category based on keyword matches
   for (const [category, keywords] of Object.entries(CATEGORY_KEYWORDS)) {
     for (const keyword of keywords) {
       if (normalizedProvider.includes(keyword)) {
@@ -276,7 +34,6 @@ export function suggestCategory(providerName: string): Category {
     }
   }
 
-  // Find category with highest score
   let maxScore = 0;
   let suggestedCategory: Category = "Uncategorized";
 
@@ -287,6 +44,5 @@ export function suggestCategory(providerName: string): Category {
     }
   }
 
-  // Only return suggestion if we have a confident match (score > 0)
   return maxScore > 0 ? suggestedCategory : "Uncategorized";
 }

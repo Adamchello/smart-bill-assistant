@@ -1,18 +1,17 @@
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { queryClient } from "@/lib/query-client";
+import type { BillFormData } from "../integration/repository";
 import {
   getBills,
   createBill,
   suggestCategoryApi,
-  getForecasts,
-  getInsights,
-} from "./api";
+} from "../integration/repository";
 
 export function useBills(options?: { enabled?: boolean }) {
   return useQuery(
     {
       queryKey: ["bills"],
-      queryFn: getBills,
+      queryFn: ({ signal }) => getBills(signal),
       enabled: options?.enabled,
     },
     queryClient,
@@ -22,7 +21,7 @@ export function useBills(options?: { enabled?: boolean }) {
 export function useCreateBill() {
   return useMutation(
     {
-      mutationFn: createBill,
+      mutationFn: (formData: BillFormData) => createBill(formData),
       onSuccess: () => {
         queryClient.invalidateQueries({ queryKey: ["bills"] });
       },
@@ -39,26 +38,6 @@ export function useSuggestCategory(providerName: string) {
       enabled: !!providerName,
       retry: false,
       staleTime: Infinity,
-    },
-    queryClient,
-  );
-}
-
-export function useForecasts() {
-  return useQuery(
-    {
-      queryKey: ["forecasts"],
-      queryFn: getForecasts,
-    },
-    queryClient,
-  );
-}
-
-export function useInsights() {
-  return useQuery(
-    {
-      queryKey: ["insights"],
-      queryFn: getInsights,
     },
     queryClient,
   );

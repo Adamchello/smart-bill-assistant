@@ -13,7 +13,8 @@ import {
   FieldLabel,
   FieldDescription,
 } from "@/components/ui/field";
-import { type Category, CATEGORIES } from "../domain/category";
+import type { Category } from "@/shared/domain/category";
+import { CATEGORIES } from "@/shared/configuration/category";
 
 interface CategorySelectorProps {
   value?: Category;

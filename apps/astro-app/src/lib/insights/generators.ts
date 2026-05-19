@@ -5,8 +5,8 @@
  * and delegates object construction to ./insight-builders.
  */
 
-import type { Category } from "@/modules/bill-management/domain/category";
-import type { Insight } from "@/modules/bill-management/domain/insights";
+import type { Category } from "@/shared/domain/category";
+import type { Insight } from "@/modules/bill-insights/domain/insights";
 import {
   getMonthSpan,
   linearRegression,

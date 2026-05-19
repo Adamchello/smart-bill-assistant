@@ -1,5 +1,23 @@
 import type { Category } from "../domain/category";
 
+export const CATEGORIES: Category[] = [
+  "Utilities",
+  "Housing",
+  "Food",
+  "Transportation",
+  "Subscriptions",
+  "Healthcare",
+  "Insurance",
+  "Loans",
+  "Entertainment",
+  "Shopping",
+  "Services",
+  "Education",
+  "Charity",
+  "Pets",
+  "Uncategorized",
+];
+
 export const CATEGORY_COLORS: Record<Category, string> = {
   Utilities:
     "bg-blue-500/10 text-blue-600 dark:text-blue-400 border-blue-500/20",
@@ -28,10 +46,3 @@ export const CATEGORY_COLORS: Record<Category, string> = {
   Uncategorized:
     "bg-gray-500/10 text-gray-600 dark:text-gray-400 border-gray-500/20",
 };
-
-export function formatCurrency(amount: number): string {
-  return new Intl.NumberFormat("en-US", {
-    style: "currency",
-    currency: "USD",
-  }).format(amount);
-}

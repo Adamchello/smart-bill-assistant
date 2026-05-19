@@ -1,4 +1,19 @@
-import type { Category } from "@/modules/bill-management/domain/category";
+export type Category =
+  | "Utilities"
+  | "Housing"
+  | "Food"
+  | "Transportation"
+  | "Subscriptions"
+  | "Healthcare"
+  | "Insurance"
+  | "Loans"
+  | "Entertainment"
+  | "Shopping"
+  | "Services"
+  | "Education"
+  | "Charity"
+  | "Pets"
+  | "Uncategorized";
 
 export interface ParsedBillRow {
   id: string;

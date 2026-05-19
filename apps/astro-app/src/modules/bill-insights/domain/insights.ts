@@ -1,4 +1,4 @@
-import type { Category } from "./category";
+import type { Category } from "@/shared/domain/category";
 
 export type InsightSentiment = "positive" | "negative" | "neutral" | "warning";
 

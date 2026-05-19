@@ -1,12 +1,8 @@
-export const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10 MB
-
-const VALID_SPREADSHEET_MIME_TYPES = [
-  "text/csv",
-  "application/vnd.ms-excel",
-  "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-];
-
-const VALID_SPREADSHEET_EXTENSIONS = [".csv", ".xls", ".xlsx"];
+import {
+  MAX_FILE_SIZE,
+  VALID_SPREADSHEET_MIME_TYPES,
+  VALID_SPREADSHEET_EXTENSIONS,
+} from "./constraints";
 
 export function validateSpreadsheetType(file: File): {
   valid: boolean;
@@ -17,8 +13,8 @@ export function validateSpreadsheetType(file: File): {
     .substring(file.name.lastIndexOf("."));
 
   if (
-    !VALID_SPREADSHEET_MIME_TYPES.includes(file.type) &&
-    !VALID_SPREADSHEET_EXTENSIONS.includes(extension)
+    !VALID_SPREADSHEET_MIME_TYPES.includes(file.type as any) &&
+    !VALID_SPREADSHEET_EXTENSIONS.includes(extension as any)
   ) {
     return {
       valid: false,

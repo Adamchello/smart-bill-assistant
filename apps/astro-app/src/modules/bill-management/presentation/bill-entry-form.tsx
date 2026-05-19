@@ -20,7 +20,7 @@ import {
   DialogTitle,
   DialogFooter,
 } from "@/components/ui/dialog";
-import { useCreateBill, useSuggestCategory } from "../integration/hooks";
+import { useCreateBill, useSuggestCategory } from "../core/store";
 
 interface BillEntryFormProps {
   open: boolean;

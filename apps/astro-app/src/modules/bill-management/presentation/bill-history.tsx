@@ -3,20 +3,12 @@
 import { useMemo } from "react";
 import type { Bill } from "../domain/bill";
 import { Separator } from "@/components/ui/separator";
-import { CATEGORY_COLORS, formatCurrency } from "../core/category-colors";
+import { CATEGORY_COLORS } from "@/shared/configuration/category";
+import { formatCurrency, formatDate } from "@/shared/format";
 
 interface BillHistoryProps {
   bills: Bill[];
   onRefresh?: () => void;
-}
-
-function formatDate(dateString: string): string {
-  const date = new Date(dateString);
-  return date.toLocaleDateString("en-US", {
-    year: "numeric",
-    month: "short",
-    day: "numeric",
-  });
 }
 
 export function BillHistory({ bills, onRefresh }: BillHistoryProps) {

@@ -1,36 +1,6 @@
-export const COLUMN_MAPPINGS = {
-  amount: ["amount", "amt", "total", "value", "price", "cost"],
-  date: [
-    "date",
-    "bill_date",
-    "billdate",
-    "payment_date",
-    "paymentdate",
-    "due_date",
-    "duedate",
-  ],
-  provider: [
-    "provider",
-    "provider_name",
-    "providername",
-    "vendor",
-    "company",
-    "merchant",
-    "payee",
-    "from",
-    "name",
-  ],
-  description: [
-    "description",
-    "desc",
-    "note",
-    "notes",
-    "memo",
-    "details",
-    "comment",
-    "comments",
-  ],
-} as const;
+import { COLUMN_MAPPINGS } from "../../configuration/constraints";
+
+export { COLUMN_MAPPINGS };
 
 export function findColumnIndex(
   headers: string[],
