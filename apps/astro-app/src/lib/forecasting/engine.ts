@@ -23,14 +23,14 @@
  * single bill -> wide confidence intervals (20% floor).
  */
 
-import type { Category } from "@/modules/bill-management/models/category";
+import type { Category } from "@/modules/bill-management/domain/category";
 import type {
   ForecastResponse,
   CategorySummary,
   CategoryMonthForecast,
   MonthlyTotal,
   ConfidenceInterval,
-} from "@/modules/bill-management/models/forecast";
+} from "@/modules/bill-management/domain/forecast";
 import {
   getMonthKey,
   getMonthSpan,

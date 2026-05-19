@@ -14,14 +14,14 @@ import {
   validateSpreadsheetType,
   validateFileSize,
 } from "../core/validators/file";
-import type { ParsedBillRow } from "../models/bill-import";
-import type { Category } from "@/modules/bill-management";
+import type { ParsedBillRow } from "../domain/bill-import";
+import type { Category } from "@/modules/bill-management/domain/category";
 import { FileDropZone } from "./import/file-drop-zone";
 import { ImportStats } from "./import/import-stats";
 import { ImportTable } from "./import/import-table";
 import { ImportErrors } from "./import/import-errors";
 import { useImportBills } from "../integration/hooks";
-import { useBills } from "@/modules/bill-management";
+import { useBills } from "@/modules/bill-management/integration/hooks";
 import {
   checkDuplicates,
   updateRowField,

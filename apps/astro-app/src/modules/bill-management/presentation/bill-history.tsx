@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo } from "react";
-import type { Bill } from "../models/bill";
+import type { Bill } from "../domain/bill";
 import { Separator } from "@/components/ui/separator";
 import { CATEGORY_COLORS, formatCurrency } from "../core/category-colors";
 

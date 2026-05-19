@@ -1,5 +1,5 @@
-import type { ParsedBillRow } from "../models/bill-import";
-import type { Bill } from "@/modules/bill-management/models/bill";
+import type { ParsedBillRow } from "../domain/bill-import";
+import type { Bill } from "@/modules/bill-management/domain/bill";
 import { suggestCategory } from "@/modules/bill-management/core/category-suggestion";
 
 export function checkDuplicates(

@@ -3,7 +3,7 @@
 import { CATEGORY_COLORS, formatCurrency } from "../core/category-colors";
 import { Separator } from "@/components/ui/separator";
 import { TrendingUp, TrendingDown, Minus, AlertTriangle } from "lucide-react";
-import type { ForecastResponse } from "../models/forecast";
+import type { ForecastResponse } from "../domain/forecast";
 import { useForecasts } from "../integration/hooks";
 
 function formatMonth(monthKey: string): string {

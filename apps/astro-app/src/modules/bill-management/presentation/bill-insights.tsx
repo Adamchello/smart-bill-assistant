@@ -22,8 +22,8 @@ import type {
   InsightIconHint,
   InsightSentiment,
   InsightComparison,
-} from "../models/insights";
-import type { Category } from "../models/category";
+} from "../domain/insights";
+import type { Category } from "../domain/category";
 import { useInsights } from "../integration/hooks";
 
 // ── Sections ────────────────────────────────────────────────────────────────

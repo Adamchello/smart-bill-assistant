@@ -13,7 +13,7 @@ import {
   FieldLabel,
   FieldDescription,
 } from "@/components/ui/field";
-import { type Category, CATEGORIES } from "../models/category";
+import { type Category, CATEGORIES } from "../domain/category";
 
 interface CategorySelectorProps {
   value?: Category;

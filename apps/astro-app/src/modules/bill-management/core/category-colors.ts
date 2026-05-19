@@ -1,4 +1,4 @@
-import type { Category } from "../models/category";
+import type { Category } from "../domain/category";
 
 export const CATEGORY_COLORS: Record<Category, string> = {
   Utilities:

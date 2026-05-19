@@ -1,4 +1,4 @@
-import type { Category } from "../models/category";
+import type { Category } from "../domain/category";
 
 // Keyword mappings for category suggestions
 const CATEGORY_KEYWORDS: Record<Category, string[]> = {

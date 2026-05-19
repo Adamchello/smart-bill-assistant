@@ -1,4 +1,4 @@
-import type { ParsedBillRow } from "../models/bill-import";
+import type { ParsedBillRow } from "../domain/bill-import";
 
 export const importBills = async (
   bills: ParsedBillRow[],

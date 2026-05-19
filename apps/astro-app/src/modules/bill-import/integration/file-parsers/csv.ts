@@ -1,5 +1,5 @@
 import Papa from "papaparse";
-import type { ParseResult } from "../../models/bill-import";
+import type { ParseResult } from "../../domain/bill-import";
 import {
   hasHeaderRow,
   detectColumns,

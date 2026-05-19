@@ -1,6 +1,6 @@
 "use client";
 
-import type { ParsedBillRow } from "../../models/bill-import";
+import type { ParsedBillRow } from "../../domain/bill-import";
 
 interface ImportErrorsProps {
   rows: ParsedBillRow[];

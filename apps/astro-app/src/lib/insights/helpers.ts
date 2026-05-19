@@ -3,7 +3,7 @@
  * and the category-total reducer.
  */
 
-import type { Category } from "@/modules/bill-management/models/category";
+import type { Category } from "@/modules/bill-management/domain/category";
 import { getMonthKey, type BillInput, type MonthBucket } from "../bill-math";
 
 // ── Types ───────────────────────────────────────────────────────────────────

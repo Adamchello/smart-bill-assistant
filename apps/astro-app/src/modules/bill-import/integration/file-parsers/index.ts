@@ -1,4 +1,4 @@
-import type { ParseResult } from "../../models/bill-import";
+import type { ParseResult } from "../../domain/bill-import";
 import { parseCSV } from "./csv";
 import { parseExcel } from "./excel";
 

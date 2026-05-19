@@ -2,15 +2,13 @@
 
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import {
-  BillEntryForm,
-  BillHistory,
-  BillForecasts,
-  BillInsights,
-  DashboardOverview,
-  useBills,
-} from "@/modules/bill-management";
-import { BillImport } from "@/modules/bill-import";
+import { BillEntryForm } from "@/modules/bill-management/presentation/bill-entry-form";
+import { BillHistory } from "@/modules/bill-management/presentation/bill-history";
+import { BillForecasts } from "@/modules/bill-management/presentation/bill-forecasts";
+import { BillInsights } from "@/modules/bill-management/presentation/bill-insights";
+import { DashboardOverview } from "@/modules/bill-management/presentation/dashboard-overview";
+import { useBills } from "@/modules/bill-management/integration/hooks";
+import { BillImport } from "@/modules/bill-import/presentation/bill-import";
 import { useAuth } from "@/kernel/auth/use-auth";
 import { Upload } from "lucide-react";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";

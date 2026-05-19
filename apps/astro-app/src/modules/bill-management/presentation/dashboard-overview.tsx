@@ -15,15 +15,15 @@ import {
   Lightbulb,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
-import type { Bill } from "../models/bill";
-import type { ForecastResponse } from "../models/forecast";
+import type { Bill } from "../domain/bill";
+import type { ForecastResponse } from "../domain/forecast";
 import type {
   InsightsResponse,
   Insight,
   InsightIconHint,
   InsightSentiment,
-} from "../models/insights";
-import type { Category } from "../models/category";
+} from "../domain/insights";
+import type { Category } from "../domain/category";
 import { useForecasts } from "../integration/hooks";
 import { useInsights } from "../integration/hooks";
 

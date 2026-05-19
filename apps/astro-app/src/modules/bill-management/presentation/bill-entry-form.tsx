@@ -12,7 +12,7 @@ import {
   FieldError,
 } from "@/components/ui/field";
 import { CategorySelector } from "./category-selector";
-import type { Category } from "../models/category";
+import type { Category } from "../domain/category";
 import {
   Dialog,
   DialogContent,

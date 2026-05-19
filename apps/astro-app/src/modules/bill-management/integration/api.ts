@@ -1,7 +1,7 @@
-import type { Bill } from "../models/bill";
-import type { Category } from "../models/category";
-import type { ForecastResponse } from "../models/forecast";
-import type { InsightsResponse } from "../models/insights";
+import type { Bill } from "../domain/bill";
+import type { Category } from "../domain/category";
+import type { ForecastResponse } from "../domain/forecast";
+import type { InsightsResponse } from "../domain/insights";
 
 export const getBills = async (): Promise<Bill[]> => {
   const response = await fetch("/api/bills/list");

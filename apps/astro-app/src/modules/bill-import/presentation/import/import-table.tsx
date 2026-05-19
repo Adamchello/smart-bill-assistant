@@ -10,12 +10,10 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Trash2 } from "lucide-react";
-import type { ParsedBillRow } from "../../models/bill-import";
-import {
-  type Category,
-  CATEGORIES,
-  CATEGORY_COLORS,
-} from "@/modules/bill-management";
+import type { ParsedBillRow } from "../../domain/bill-import";
+import type { Category } from "@/modules/bill-management/domain/category";
+import { CATEGORIES } from "@/modules/bill-management/domain/category";
+import { CATEGORY_COLORS } from "@/modules/bill-management/core/category-colors";
 
 interface ImportTableProps {
   rows: ParsedBillRow[];

@@ -1,10 +1,7 @@
-import type { ParsedBillRow } from "../../models/bill-import";
-import {
-  parseAmount,
-  parseDate,
-  parseProviderName,
-  parseDescription,
-} from "../parsers";
+import type { ParsedBillRow } from "../../domain/bill-import";
+import { parseAmount } from "../parsers/amount";
+import { parseDate } from "../parsers/date";
+import { parseProviderName, parseDescription } from "../parsers/text";
 import type { ColumnIndices } from "./column-detection";
 
 function generateId(): string {

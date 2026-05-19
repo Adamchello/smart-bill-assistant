@@ -1,4 +1,4 @@
-import type { Category } from "@/modules/bill-management/models/category";
+import type { Category } from "./category";
 
 export interface ConfidenceInterval {
   low: number;
