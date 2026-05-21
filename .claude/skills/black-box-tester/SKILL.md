@@ -8,9 +8,13 @@ description: >
 
 Write tests from user plan. Black-box only. Never bind to internals.
 
+## Layer
+
+This skill serves **integration tests** (`__tests__/*.test.tsx`). Render component directly — no browser navigation, no page objects, no route transitions. Mock at API/network boundary. If a test requires navigating to a page first, it belongs in e2e (`__e2e__/`, see `interpreter-e2e` skill), not here.
+
 ## Goal
 
-Test externally visible behavior only.
+Test externally visible rendering behavior: exact values, formatting, conditional UI, edge cases.
 
 ## Hard Rules
 

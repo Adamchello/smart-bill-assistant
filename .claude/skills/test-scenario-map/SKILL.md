@@ -7,91 +7,100 @@ description: >
 
 ## Rules
 
-1. **Zero test code.** Comment-only scenario descriptions in `.test.tsx` / `.spec.tsx` files.
-2. **Two layers only**: `e2e` and `integration`. No unit tests — pure logic coverage belongs in integration tests.
-3. **Two sources**: requirements (user provides or you find) AND codebase (modules, pages, API routes, domain logic).
-4. **Flag gaps**: requirement with no testable scenario → call it out.
-5. **Module-scoped**: each test file lives inside its module. If a scenario doesn't belong to the module, don't add it.
-6. **Planning only.** Describe scenarios in terms of user behavior and expected outcomes. Do NOT reference tools, libraries, test utilities, or implementation patterns — that belongs to the implementation skill.
+1. **Zero test code.** Comment-only scenarios in `.spec.ts` / `.test.tsx` files.
+2. **Two layers only**: `e2e` and `integration`. No unit tests.
+3. **Two sources**: requirements + codebase.
+4. **Flag gaps**: untestable requirement → call it out.
+5. **Module-scoped**: test file lives inside its module.
+6. **Planning only.** No tools, libraries, or implementation patterns — behavior and outcomes only.
 
 ## Classification
 
-| Layer           | What it tests                        | Boundary              | Directory    |
-| --------------- | ------------------------------------ | --------------------- | ------------ |
-| **e2e**         | Full user journeys through real app  | Browser → Server → DB | `__e2e__/`   |
-| **integration** | Feature behavior with mocked backend | Component → API mock  | `__tests__/` |
+| Layer           | Question                         | Boundary              | Directory    |
+| --------------- | -------------------------------- | --------------------- | ------------ |
+| **e2e**         | Can the user REACH each state?   | Browser → Server → DB | `__e2e__/`   |
+| **integration** | Does the component BEHAVE there? | Component → API mock  | `__tests__/` |
 
-### e2e (`__e2e__/*.test.tsx`)
+### Separation Principle
 
-- Complete user journeys: login, navigate, interact, verify real outcomes
-- **Fewer, fatter files** — one file per distinct journey entry point (e.g., CSV import vs Excel import)
-- Multiple related scenarios chain inside one file when they share the same starting point
-- Split only when the **entry point differs** (different page, different flow)
+E2e and integration MUST NOT overlap. Same assertion in both = wasted execution, zero extra confidence.
 
-### integration (`__tests__/*.spec.tsx`)
+- **E2e = journey**: navigation works, states reachable. THEN references structural landmarks only — NEVER specific values or formatting.
+- **Integration = behavior**: exact rendered content, formatting, edge cases, conditional UI. THEN names specific values and visual details.
 
-- Feature behavior from the user's perspective with the backend mocked
-- Verify what the user **sees and does** — not internal state
-- **More, thinner files** — one file per domain concern (validation, suggestions, duplicates, etc.)
-- Split when the **concern differs** (form validation vs category suggestion vs history display)
+Decision test: "GETTING THERE or WHAT'S RENDERED?" Getting there → e2e. What's rendered → integration.
 
-## Scenario Comment Format
+### e2e (`__e2e__/*.spec.ts`)
 
-Each scenario is a comment block describing WHAT happens, not HOW to implement it:
+- Every meaningful state (happy, empty, error, degraded) reachable via navigation
+- THEN = structural landmarks only
+- Fewer, fatter files — one per journey entry point
+
+### integration (`__tests__/*.test.tsx`)
+
+- Every visual branch (loading, error, empty, degraded, full)
+- THEN = specific content, values, labels, conditional elements
+- More, thinner files — one per domain concern
+
+### Anti-patterns
+
+| Symptom                              | Fix                                             |
+| ------------------------------------ | ----------------------------------------------- |
+| E2e THEN names formatted values      | Move to integration; e2e asserts section exists |
+| Integration THEN involves navigation | Move to e2e; integration renders directly       |
+| Same assertion in both layers        | Pick ONE owner                                  |
+| E2e covers only happy path           | Add journey per reachable state                 |
+| Scenario file has no implementation  | Flag as gap                                     |
+
+## Scenario Format
 
 ```
-// SCENARIO: {what the user experiences}
-// GIVEN: {initial state — what data exists, what page the user is on}
-// WHEN: {user action — clicks, types, submits, navigates}
-// THEN: {expected outcome — what appears, disappears, changes}
+// SCENARIO: {what user experiences}
+// GIVEN: {initial state}
+// WHEN: {user action}
+// THEN: {expected outcome}
 ```
 
-For setup shared across scenarios in a file:
+Shared setup:
 
 ```
-// CONTEXT: {module name} — {what aspect this file covers}
+// CONTEXT: {module} — {aspect}
 // PRECONDITIONS:
-// - {data that must exist}
-// - {user state — logged in, on specific page, etc.}
+// - {data / user state}
 ```
+
+### THEN by layer
+
+- **E2e**: landmarks — "data section visible", "error state shown", "warning banner appears". No values, formats, counts.
+- **Integration**: specifics — "amount formatted as currency", "status label reflects state", "each entry shows value with range".
+- Mixed THEN → split into two scenarios, one per layer.
 
 ## Flow
 
-1. **Requirements** — Ask user or search README/specs/openspec/PRDs. Nothing found → ask, never invent.
-2. **Codebase** — Read modules, understand each module's:
-   - What the user can do (actions, forms, navigation)
-   - What data it displays and where it comes from
-   - What can go wrong (validation, empty states, errors)
-   - Edge cases (boundaries, concurrent actions, permissions)
-3. **File Planning** — Per module, decide:
-   - `__e2e__/`: one file per distinct user journey entry point
-   - `__tests__/`: one file per domain concern (split by what changes independently)
-4. **Scenario Writing** — Create comment-only files with:
-   - Context block (what this file covers, preconditions)
-   - SCENARIO entries with GIVEN / WHEN / THEN
-5. **Gaps** — `GAP: {requirement} → {why untestable or unclear}`
-6. **Summary Table**
+1. **Requirements** — Find or ask. Never invent.
+2. **Codebase** — Per module: actions, data sources, failure modes, edge cases.
+3. **State Inventory** — List every reachable state. Each needs min 1 e2e (reachable?) + 1 integration (renders?).
+4. **Layer Assignment** — Getting there → e2e. What's rendered → integration. Mixed → split.
+5. **File Planning** — `__e2e__/`: per journey entry. `__tests__/`: per concern.
+6. **Overlap Check** — Same assertion in both → remove from one. E2e keeps journey, integration keeps detail.
+7. **Write** — Comment-only files with CONTEXT + SCENARIO blocks.
+8. **Gaps** — `GAP: {requirement} → {reason}`
+9. **Summary Table**
 
 ## Output
 
-Comment-only test files created inside each module's `__e2e__/` and `__tests__/` directories, plus a summary in the conversation:
+Comment-only files in `__e2e__/` and `__tests__/`, plus conversation summary:
 
 ```
-## File Structure
-
 {module}/
-  __e2e__/
-    {journey}.test.tsx       — {what this journey covers}
-  __tests__/
-    {concern}.spec.tsx       — {what this concern covers}
+  __e2e__/{journey}.spec.ts    — {covers}
+  __tests__/{concern}.test.tsx  — {covers}
 
-## Summary
-
-| Layer       | Files | Scenarios | Coverage Areas |
-|-------------|-------|-----------|----------------|
-| e2e         | N     | N         | ...            |
-| integration | N     | N         | ...            |
-| gaps        | —     | N         | ...            |
+| Layer       | Files | Scenarios | Coverage |
+|-------------|-------|-----------|----------|
+| e2e         | N     | N         | ...      |
+| integration | N     | N         | ...      |
+| gaps        | —     | N         | ...      |
 ```
 
 Feeds into `black-box-tester` or `interpreter-e2e` for implementation.

@@ -59,9 +59,12 @@ Confirm engine config picks up `**/__e2e__/**/*.spec.ts`, or adjust glob to matc
 - Await engine actions; no sleeps/timeouts.
 - Reuse command keys across tests; new keys only for new behavior.
 - Test titles describe behavior, not implementation.
-- Assertions verify visible outcome.
 - Mock API as first step, before navigation.
 - Page passed per step as argument, not closed over.
+
+### Assertion Scope
+
+E2e tests own REACHABILITY, not rendering details. Assert on structural landmarks: section headings, state indicators, warning banners, empty state messages. NEVER assert on formatted values, specific amounts, trend labels, or conditional content details — those belong in integration tests (`__tests__/*.test.tsx`). If a command name starts with "see exact..." or checks a specific formatted string, it probably belongs in integration, not here.
 
 ### Selectors by Engine
 
