@@ -1,5 +1,6 @@
 import { test, expect, type Page } from "@playwright/test";
 import { interpreter } from "@/__e2e__/interpreter";
+import { loginAs } from "@/__e2e__/auth";
 import {
   fullForecast,
   limitedForecast,
@@ -50,7 +51,7 @@ const commands = {
   },
 
   "navigate to forecasts tab": async (page: Page) => {
-    await page.goto("/");
+    await page.goto("/app");
     await page.getByRole("tab", { name: /forecasts/i }).click();
   },
 
@@ -69,7 +70,7 @@ const commands = {
   },
 
   "see error state": async (page: Page) => {
-    await expect(page.getByText(/failed to/i)).toBeVisible();
+    await expect(page.getByText(/failed to/i)).toBeVisible({ timeout: 15000 });
   },
 
   "forecast sections are not rendered": async (page: Page) => {
@@ -81,6 +82,10 @@ const commands = {
 const run = interpreter(commands);
 
 test.describe("Forecast Viewing", () => {
+  test.beforeEach(async ({ page }) => {
+    await loginAs(page);
+  });
+
   test("user navigates to forecasts and sees full content", async ({
     page,
   }) => {

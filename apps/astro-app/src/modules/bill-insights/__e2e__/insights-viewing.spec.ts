@@ -1,47 +1,203 @@
-// CONTEXT: bill-insights — Insights Viewing Journey (e2e)
-// PRECONDITIONS:
-// - User is authenticated
-// - Database is seeded as described per scenario
+import { test, expect, type Page } from "@playwright/test";
+import { interpreter } from "@/__e2e__/interpreter";
+import { loginAs } from "@/__e2e__/auth";
+import type { InsightsResponse } from "../domain/insights";
 
-// SCENARIO: user with rich bill history sees multiple prioritized insights
-// GIVEN: the user has 8+ months of diverse bill history across multiple categories
-// WHEN: the user navigates to the Insights tab on the dashboard
-// THEN: multiple insight cards are displayed
-// THEN: cards appear sorted by priority with the most urgent insights first
-// THEN: each card contains recognizable structural elements (icon, title, description)
+const INSIGHTS_URL = "**/api/bills/insights";
 
-// SCENARIO: user with minimal bill history sees only data-appropriate insights
-// GIVEN: the user has 1 month of bill history
-// WHEN: the user navigates to the Insights tab
-// THEN: only insights appropriate for the available data depth are shown
+const richInsights: { data: InsightsResponse } = {
+  data: {
+    dataQuality: "full",
+    generatedAt: "2026-05-21T00:00:00Z",
+    insights: [
+      {
+        type: "spending-spike",
+        priority: 1,
+        title: "Utilities Spending Spike",
+        description:
+          "Your Utilities spending jumped from $50/mo to $120/mo this month.",
+        category: "Utilities",
+        iconHint: "alert-triangle",
+        sentiment: "warning",
+        comparison: {
+          label: "Utilities",
+          currentValue: 120,
+          previousValue: 50,
+          changePercent: 140,
+          unit: "currency",
+        },
+      },
+      {
+        type: "new-category",
+        priority: 3,
+        title: "New Category Detected",
+        description:
+          "You started spending in Pets — 2 bills totalling $85 in the last 2 months.",
+        category: "Pets",
+        iconHint: "plus-circle",
+        sentiment: "neutral",
+      },
+      {
+        type: "top-spending-category",
+        priority: 5,
+        title: "Top Spending: Housing",
+        description:
+          "Housing accounts for 45% of your monthly spending at $1,200/mo.",
+        category: "Housing",
+        iconHint: "bar-chart",
+        sentiment: "neutral",
+      },
+    ],
+  },
+};
 
-// SCENARIO: user with no bills sees an empty state
-// GIVEN: the user has no bills recorded
-// WHEN: the user navigates to the Insights tab
-// THEN: an empty state message is displayed
-// THEN: no insight cards are rendered
+const limitedInsights: { data: InsightsResponse } = {
+  data: {
+    dataQuality: "limited",
+    generatedAt: "2026-05-21T00:00:00Z",
+    insights: [
+      {
+        type: "top-spending-category",
+        priority: 5,
+        title: "Top Spending: Utilities",
+        description: "Utilities is your biggest expense at $600/mo.",
+        category: "Utilities",
+        iconHint: "bar-chart",
+        sentiment: "neutral",
+      },
+    ],
+  },
+};
 
-// SCENARIO: insights fail to load and user sees an error state
-// GIVEN: the insights API returns an error
-// WHEN: the user navigates to the Insights tab
-// THEN: an error message is displayed
-// THEN: the panel remains usable and does not crash
+const emptyInsights: { data: InsightsResponse } = {
+  data: {
+    dataQuality: "full",
+    generatedAt: "2026-05-21T00:00:00Z",
+    insights: [],
+  },
+};
 
-// SCENARIO: insights are loading and user sees a loading state
-// GIVEN: the insights API response is delayed
-// WHEN: the user navigates to the Insights tab before the response arrives
-// THEN: a loading indicator is visible
-// THEN: no insight cards are shown yet
+const commands = {
+  "mock rich insights API": async (page: Page) => {
+    await page.route(INSIGHTS_URL, (route) =>
+      route.fulfill({
+        status: 200,
+        contentType: "application/json",
+        body: JSON.stringify(richInsights),
+      }),
+    );
+  },
 
-// SCENARIO: anomalous bill triggers a spending spike insight
-// GIVEN: the user has several months of stable bills in a category
-// AND: a significantly higher bill is added for the current month in that category
-// WHEN: the user navigates to the Insights tab
-// THEN: a spending spike insight card is visible for the affected category
-// THEN: the insight card shows comparison values
+  "mock limited insights API": async (page: Page) => {
+    await page.route(INSIGHTS_URL, (route) =>
+      route.fulfill({
+        status: 200,
+        contentType: "application/json",
+        body: JSON.stringify(limitedInsights),
+      }),
+    );
+  },
 
-// SCENARIO: newly added spending category surfaces a new category insight
-// GIVEN: the user has months of history in established categories only
-// AND: bills in a previously unseen category are added in recent months
-// WHEN: the user navigates to the Insights tab
-// THEN: a new category insight is visible for the recently added category
+  "mock empty insights API": async (page: Page) => {
+    await page.route(INSIGHTS_URL, (route) =>
+      route.fulfill({
+        status: 200,
+        contentType: "application/json",
+        body: JSON.stringify(emptyInsights),
+      }),
+    );
+  },
+
+  "mock failing insights API": async (page: Page) => {
+    await page.route(INSIGHTS_URL, (route) =>
+      route.fulfill({
+        status: 500,
+        contentType: "application/json",
+        body: JSON.stringify({}),
+      }),
+    );
+  },
+
+  "navigate to insights tab": async (page: Page) => {
+    await page.goto("/app");
+    await page.getByRole("tab", { name: /insights/i }).click();
+  },
+
+  "see insight cards displayed": async (page: Page) => {
+    await expect(page.getByText("Forecast Alerts")).toBeVisible();
+    await expect(page.getByText("Spending Behavior")).toBeVisible();
+  },
+
+  "see spending spike insight": async (page: Page) => {
+    await expect(page.getByText(/spending spike/i)).toBeVisible();
+  },
+
+  "see new category insight": async (page: Page) => {
+    await expect(page.getByText(/new category/i)).toBeVisible();
+  },
+
+  "see limited data warning": async (page: Page) => {
+    await expect(page.getByText("Limited data available")).toBeVisible();
+  },
+
+  "see empty state message": async (page: Page) => {
+    await expect(page.getByText(/no insights available/i)).toBeVisible();
+  },
+
+  "see error state": async (page: Page) => {
+    await expect(page.getByText(/failed to/i)).toBeVisible({ timeout: 15000 });
+  },
+
+  "insight sections are not rendered": async (page: Page) => {
+    await expect(page.getByText("Forecast Alerts")).not.toBeVisible();
+    await expect(page.getByText("Spending Behavior")).not.toBeVisible();
+  },
+};
+
+const run = interpreter(commands);
+
+test.describe("Insights Viewing", () => {
+  test.beforeEach(async ({ page }) => {
+    await loginAs(page);
+  });
+
+  test("user with rich history sees prioritized insight cards", async ({
+    page,
+  }) => {
+    await run(
+      ["mock rich insights API", page],
+      ["navigate to insights tab", page],
+      ["see insight cards displayed", page],
+      ["see spending spike insight", page],
+      ["see new category insight", page],
+    );
+  });
+
+  test("user with limited history sees warning and reduced insights", async ({
+    page,
+  }) => {
+    await run(
+      ["mock limited insights API", page],
+      ["navigate to insights tab", page],
+      ["see limited data warning", page],
+    );
+  });
+
+  test("user with no bills sees empty state", async ({ page }) => {
+    await run(
+      ["mock empty insights API", page],
+      ["navigate to insights tab", page],
+      ["see empty state message", page],
+      ["insight sections are not rendered", page],
+    );
+  });
+
+  test("user sees error state when API fails", async ({ page }) => {
+    await run(
+      ["mock failing insights API", page],
+      ["navigate to insights tab", page],
+      ["see error state", page],
+      ["insight sections are not rendered", page],
+    );
+  });
+});

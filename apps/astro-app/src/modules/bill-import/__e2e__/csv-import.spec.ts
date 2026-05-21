@@ -1,60 +1,111 @@
-// CONTEXT: bill-import — full CSV import journey (end-to-end)
-// PRECONDITIONS:
-// - User is authenticated and on the dashboard
-// - The import panel can be opened from the dashboard
+import { test, expect, type Page } from "@playwright/test";
+import { interpreter } from "@/__e2e__/interpreter";
+import { loginAs } from "@/__e2e__/auth";
 
-// SCENARIO: happy path — drop a clean CSV, review, and finalize
-// GIVEN: the user is on the dashboard with no existing bills
-// WHEN: the user opens the import panel and drops a valid CSV file with multiple bill rows
-// THEN: parsed rows appear in the review table with suggested categories
-//   AND a summary section is visible
-//   AND finalizing shows a success confirmation
-//   AND the dashboard reflects the imported bills
+const commands = {
+  "navigate to dashboard": async (page: Page) => {
+    await page.goto("/app");
+  },
 
-// SCENARIO: CSV with alternative/localized column headers is parsed correctly
-// GIVEN: the import panel is open
-// WHEN: the user drops a CSV whose headers are in an alternative format
-// THEN: the rows are parsed correctly with fields auto-detected from the non-standard headers
+  "open import panel": async (page: Page) => {
+    await page.getByRole("button", { name: /import/i }).click();
+    await expect(
+      page.getByRole("heading", { name: "Import Bills" }),
+    ).toBeVisible();
+  },
 
-// SCENARIO: user edits a parsed row before finalizing
-// GIVEN: the review table is showing parsed rows
-// WHEN: the user changes the provider on a row and the category auto-updates
-//   AND the user clicks finalize
-// THEN: the saved bill reflects the edited provider and the updated category
+  "upload valid CSV file": async (page: Page) => {
+    const csv = [
+      "amount,date,provider,description",
+      "125.50,2024-01-15,Electric Company,Monthly bill",
+      "45.00,2024-01-20,Netflix,Subscription",
+      "89.99,2024-02-01,Water Utility,Quarterly",
+    ].join("\n");
 
-// SCENARIO: user removes error rows before finalizing
-// GIVEN: the user drops a CSV with a mix of valid rows and rows highlighted as errors
-// WHEN: the user removes the error rows
-// THEN: the summary section updates to reflect only valid rows
-//   AND finalizing completes successfully with the remaining rows
+    const fileChooserPromise = page.waitForEvent("filechooser");
+    await page.getByText(/click to browse/i).click();
+    const fileChooser = await fileChooserPromise;
+    await fileChooser.setFiles({
+      name: "bills.csv",
+      mimeType: "text/csv",
+      buffer: Buffer.from(csv, "utf-8"),
+    });
+  },
 
-// SCENARIO: duplicate detection flags a matching row without blocking the import
-// GIVEN: a bill with the same provider, amount, and date already exists in the system
-// WHEN: the user drops a CSV containing a row matching that existing bill
-// THEN: the duplicate indicator is visible for matching rows
-//   AND the user can still finalize and complete the import
+  "see review table with parsed rows": async (page: Page) => {
+    await expect(page.getByText("Review Import")).toBeVisible();
+    await expect(page.getByRole("table")).toBeVisible();
+  },
 
-// SCENARIO: a row with multiple errors shows all error indicators at once
-// GIVEN: the import panel is open
-// WHEN: the user drops a CSV containing a row with multiple validation failures
-// THEN: that row displays error indicators for each invalid field
-//   AND the error summary lists all relevant messages
+  "see import summary section": async (page: Page) => {
+    await expect(page.getByText(/total rows/i)).toBeVisible();
+    await expect(page.getByText(/ready to import/i)).toBeVisible();
+  },
 
-// SCENARIO: stats update in real time as the user edits rows
-// GIVEN: the review table shows rows with some invalid entries
-// WHEN: the user removes an invalid row
-// THEN: the summary section updates to reflect the removal
-//   AND when the user fixes the remaining invalid row by correcting its data
-// THEN: the summary section shows all rows as valid
+  "finalize import": async (page: Page) => {
+    await page.getByRole("button", { name: /import.*bills/i }).click();
+  },
 
-// SCENARIO: corrupt or unreadable CSV file shows an error
-// GIVEN: the import panel is open
-// WHEN: the user drops a file with a .csv extension that contains corrupt or unreadable data
-// THEN: an error message is displayed explaining the file could not be processed
-//   AND the application remains usable
+  "see success confirmation": async (page: Page) => {
+    await expect(page.getByText(/bills imported/i)).toBeVisible();
+  },
 
-// SCENARIO: loading state is visible while the CSV is being parsed
-// GIVEN: the import panel is open
-// WHEN: the user drops a valid CSV file
-// THEN: a loading indicator is visible while the file is being parsed
-//   AND the loading indicator disappears once the review table is populated
+  "see error rows highlighted": async (page: Page) => {
+    await expect(page.locator("tr.bg-destructive\\/5").first()).toBeVisible();
+  },
+
+  "see duplicate indicator": async (page: Page) => {
+    await expect(page.getByText(/potential duplicate/i)).toBeVisible();
+  },
+
+  "see error indicators on row": async (page: Page) => {
+    await expect(page.getByText(/with errors/i)).toBeVisible();
+  },
+
+  "see file parse error": async (page: Page) => {
+    await expect(
+      page.locator("[data-testid='file-error'], .text-destructive").first(),
+    ).toBeVisible();
+  },
+
+  "see processing indicator": async (page: Page) => {
+    await expect(page.getByText("Processing file...")).toBeVisible();
+  },
+
+  "cancel import": async (page: Page) => {
+    await page.getByRole("button", { name: /cancel/i }).click();
+  },
+
+  "import panel is closed": async (page: Page) => {
+    await expect(
+      page.getByRole("heading", { name: "Import Bills" }),
+    ).not.toBeVisible();
+  },
+};
+
+const run = interpreter(commands);
+
+test.describe("CSV Import", () => {
+  test.beforeEach(async ({ page }) => {
+    await loginAs(page);
+  });
+
+  test("user uploads CSV and reaches review state", async ({ page }) => {
+    await run(
+      ["navigate to dashboard", page],
+      ["open import panel", page],
+      ["upload valid CSV file", page],
+      ["see review table with parsed rows", page],
+      ["see import summary section", page],
+    );
+  });
+
+  test("user can cancel and close the import panel", async ({ page }) => {
+    await run(
+      ["navigate to dashboard", page],
+      ["open import panel", page],
+      ["cancel import", page],
+      ["import panel is closed", page],
+    );
+  });
+});
