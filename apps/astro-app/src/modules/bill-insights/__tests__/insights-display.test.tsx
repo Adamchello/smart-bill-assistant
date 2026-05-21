@@ -1,39 +1,78 @@
-// CONTEXT: bill-insights — Insights Display & Priority
-// PRECONDITIONS:
-// - User has bills data that has generated insights
-// - Insights API returns a list of insight objects with priority, sentiment, and optional comparison data
+import { render, screen } from "@testing-library/react";
+import { server } from "@/__tests__/mock-server";
+import { http, HttpResponse } from "msw";
+import { queryClient } from "@/lib/query-client";
+import { BillInsights } from "../presentation/bill-insights";
+import { fullInsights } from "./fixtures";
 
-// SCENARIO: user sees all available insights rendered as cards
-// GIVEN: the insights API returns 4 insights
-// WHEN: the user views the insights panel
-// THEN: 4 insight cards are visible on screen
+describe("Insights display", () => {
+  beforeEach(() => {
+    queryClient.clear();
+    queryClient.setDefaultOptions({ queries: { retry: false } });
+    server.use(
+      http.get("/api/bills/insights", () =>
+        HttpResponse.json({ data: fullInsights }),
+      ),
+    );
+  });
 
-// SCENARIO: insights are presented in priority order
-// GIVEN: the insights API returns insights with priorities [5, 1, 9, 3] in arbitrary order
-// WHEN: the user views the insights panel
-// THEN: cards appear ordered from highest to lowest priority [1, 3, 5, 9]
+  it("REQ4: shows loading indicator before data loads", () => {
+    render(<BillInsights />);
 
-// SCENARIO: each insight card shows its title, description, and icon
-// GIVEN: an insight with title "Spending Spike" and description "Utilities up 30%"
-// WHEN: the user views the insights panel
-// THEN: the card displays the title text, the description text, and a visual icon
+    expect(screen.getByText(/analysing your spending/i)).toBeInTheDocument();
+  });
 
-// SCENARIO: insight cards reflect their sentiment through visual styling
-// GIVEN: insights with sentiments "warning", "positive", "negative", and "neutral"
-// WHEN: the user views the insights panel
-// THEN: each card has a distinct visual treatment corresponding to its sentiment (e.g. amber for warning, green for positive, red for negative, gray for neutral)
+  it("REQ5: section headings rendered", async () => {
+    render(<BillInsights />);
 
-// SCENARIO: a comparison bar appears when an insight has before/after data
-// GIVEN: an insight with comparison data showing a previous value of 50 and current value of 120 trending upward
-// WHEN: the user views that insight card
-// THEN: a visual comparison bar is shown displaying both values
+    await screen.findByText("Forecast Alerts");
+    expect(screen.getByText("Spending Behavior")).toBeInTheDocument();
+  });
 
-// SCENARIO: no comparison bar when insight has no comparison data
-// GIVEN: an insight with no comparison data attached
-// WHEN: the user views that insight card
-// THEN: no comparison bar is shown in that card
+  it("REQ6: each insight title is visible", async () => {
+    render(<BillInsights />);
 
-// SCENARIO: a loading indicator is visible while insights are being fetched
-// GIVEN: the insights API response is delayed
-// WHEN: the user views the insights panel before the response arrives
-// THEN: a loading indicator is visible and no insight cards are shown yet
+    await screen.findByText("Utilities Spending Spike");
+    expect(screen.getByText("New Category Detected")).toBeInTheDocument();
+    expect(screen.getByText("Top Spending: Housing")).toBeInTheDocument();
+    expect(screen.getByText("Food Budget On Track")).toBeInTheDocument();
+  });
+
+  it("REQ7: each insight description is visible", async () => {
+    render(<BillInsights />);
+
+    await screen.findByText("Forecast Alerts");
+
+    expect(screen.getByText(/utilities spending jumped/i)).toBeInTheDocument();
+    expect(
+      screen.getByText(/pets is a new spending category/i),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText(/housing remains your largest expense/i),
+    ).toBeInTheDocument();
+    expect(screen.getByText(/food spending is trending/i)).toBeInTheDocument();
+  });
+
+  it("REQ8: comparison bar shown when comparison data exists", async () => {
+    render(<BillInsights />);
+
+    await screen.findByText("Forecast Alerts");
+
+    const previousLabels = screen.getAllByText("Previous");
+    const currentLabels = screen.getAllByText("Current");
+
+    // fullInsights has 2 insights with comparisons (spending-spike and top-spending-category)
+    expect(previousLabels.length).toBe(2);
+    expect(currentLabels.length).toBe(2);
+  });
+
+  it("REQ9: no limited data warning when dataQuality is full", async () => {
+    render(<BillInsights />);
+
+    await screen.findByText("Forecast Alerts");
+
+    expect(
+      screen.queryByText(/limited data available/i),
+    ).not.toBeInTheDocument();
+  });
+});

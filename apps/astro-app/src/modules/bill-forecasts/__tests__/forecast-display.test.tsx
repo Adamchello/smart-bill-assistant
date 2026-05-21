@@ -35,14 +35,15 @@ describe("Forecast display with full data quality", () => {
 
     await screen.findByText("Monthly Forecast");
 
-    expect(screen.getByText("Jun 2026")).toBeInTheDocument();
-    expect(screen.getByText("$1,550.00")).toBeInTheDocument();
+    // Month labels appear in both monthly totals and per-category forecasts
+    expect(screen.getAllByText("Jun 2026").length).toBeGreaterThanOrEqual(1);
+    expect(screen.getAllByText("$1,550.00").length).toBeGreaterThanOrEqual(1);
 
-    expect(screen.getByText("Jul 2026")).toBeInTheDocument();
-    expect(screen.getByText("$1,580.00")).toBeInTheDocument();
+    expect(screen.getAllByText("Jul 2026").length).toBeGreaterThanOrEqual(1);
+    expect(screen.getAllByText("$1,580.00").length).toBeGreaterThanOrEqual(1);
 
-    expect(screen.getByText("Aug 2026")).toBeInTheDocument();
-    expect(screen.getByText("$1,600.00")).toBeInTheDocument();
+    expect(screen.getAllByText("Aug 2026").length).toBeGreaterThanOrEqual(1);
+    expect(screen.getAllByText("$1,600.00").length).toBeGreaterThanOrEqual(1);
   });
 
   it("renders a card per category with name and average", async () => {
@@ -50,14 +51,16 @@ describe("Forecast display with full data quality", () => {
 
     await screen.findByText("By Category");
 
-    expect(screen.getByText("Utilities")).toBeInTheDocument();
-    expect(screen.getByText("$320.00/mo")).toBeInTheDocument();
+    expect(screen.getAllByText("Utilities").length).toBeGreaterThanOrEqual(1);
+    expect(screen.getByText(/\$320\.00\/mo/)).toBeInTheDocument();
 
-    expect(screen.getByText("Housing")).toBeInTheDocument();
-    expect(screen.getByText("$1,200.00/mo")).toBeInTheDocument();
+    expect(screen.getAllByText("Housing").length).toBeGreaterThanOrEqual(1);
+    expect(screen.getByText(/\$1,200\.00\/mo/)).toBeInTheDocument();
 
-    expect(screen.getByText("Subscriptions")).toBeInTheDocument();
-    expect(screen.getByText("$50.00/mo")).toBeInTheDocument();
+    expect(screen.getAllByText("Subscriptions").length).toBeGreaterThanOrEqual(
+      1,
+    );
+    expect(screen.getByText(/\$50\.00\/mo/)).toBeInTheDocument();
   });
 
   it("shows correct trend label for each direction", async () => {

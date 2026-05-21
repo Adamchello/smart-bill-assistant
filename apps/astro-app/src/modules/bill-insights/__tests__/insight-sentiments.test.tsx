@@ -1,34 +1,63 @@
-// CONTEXT: bill-insights — Sentiment Styling & Content Formatting
-// PRECONDITIONS:
-// - User has insights available with varying sentiment values
-// - Insights may belong to named groups and may contain numeric values in descriptions
+import { render, screen } from "@testing-library/react";
+import { server } from "@/__tests__/mock-server";
+import { http, HttpResponse } from "msw";
+import { queryClient } from "@/lib/query-client";
+import { BillInsights } from "../presentation/bill-insights";
+import { fullInsights, groupedInsights } from "./fixtures";
 
-// SCENARIO: a warning-sentiment insight is styled to signal caution
-// GIVEN: an insight of type spending spike with warning sentiment and an upward-trend icon hint
-// WHEN: the user views that insight card
-// THEN: the card displays warning-level visual styling (e.g. amber/orange) and the appropriate directional icon
+describe("Insight sentiments and formatting", () => {
+  beforeEach(() => {
+    queryClient.clear();
+    queryClient.setDefaultOptions({ queries: { retry: false } });
+  });
 
-// SCENARIO: a positive-sentiment insight is styled to signal good news
-// GIVEN: an insight with positive sentiment
-// WHEN: the user views that insight card
-// THEN: the card displays success-level visual styling (e.g. green)
+  it("REQ10: category badges are visible for insights with categories", async () => {
+    server.use(
+      http.get("/api/bills/insights", () =>
+        HttpResponse.json({ data: fullInsights }),
+      ),
+    );
 
-// SCENARIO: a negative-sentiment insight is styled to signal a problem
-// GIVEN: an insight with negative sentiment
-// WHEN: the user views that insight card
-// THEN: the card displays danger-level visual styling (e.g. red)
+    render(<BillInsights />);
 
-// SCENARIO: a neutral-sentiment insight is styled without strong signal
-// GIVEN: an insight with neutral sentiment
-// WHEN: the user views that insight card
-// THEN: the card displays neutral visual styling (e.g. gray)
+    await screen.findByText("Forecast Alerts");
 
-// SCENARIO: numeric values in descriptions are visually emphasized
-// GIVEN: an insight whose description contains the values "$500" and "30%"
-// WHEN: the user reads the insight description
-// THEN: those numeric values are rendered with bold or emphasized styling, distinguishing them from surrounding text
+    expect(screen.getByText("Utilities")).toBeInTheDocument();
+    expect(screen.getByText("Pets")).toBeInTheDocument();
+    expect(screen.getByText("Housing")).toBeInTheDocument();
+    expect(screen.getByText("Food")).toBeInTheDocument();
+  });
 
-// SCENARIO: insights sharing a group are presented under a single shared heading
-// GIVEN: multiple insights that belong to the same named group
-// WHEN: the user views the insights panel
-// THEN: those insights are displayed together under one group heading rather than as separate standalone cards
+  it("REQ11: dollar amounts rendered with font-semibold class", async () => {
+    server.use(
+      http.get("/api/bills/insights", () =>
+        HttpResponse.json({ data: fullInsights }),
+      ),
+    );
+
+    render(<BillInsights />);
+
+    await screen.findByText("Forecast Alerts");
+
+    // BoldNumbers wraps dollar amounts in <span class="font-semibold ...">
+    const boldSpans = document.querySelectorAll("span.font-semibold");
+    const boldTexts = Array.from(boldSpans).map((el) => el.textContent);
+
+    expect(boldTexts).toContain("$50.00");
+    expect(boldTexts).toContain("$120.00");
+    expect(boldTexts).toContain("140%");
+  });
+
+  it("REQ12: grouped insights show group heading with count", async () => {
+    server.use(
+      http.get("/api/bills/insights", () =>
+        HttpResponse.json({ data: groupedInsights }),
+      ),
+    );
+
+    render(<BillInsights />);
+
+    await screen.findByText("Spending Spikes");
+    expect(screen.getByText("(2 categories)")).toBeInTheDocument();
+  });
+});

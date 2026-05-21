@@ -1,16 +1,54 @@
-// CONTEXT: bill-insights — Empty State
-// PRECONDITIONS:
-// - User is authenticated
-// - The insights panel is the active view
+import { render, screen } from "@testing-library/react";
+import { server } from "@/__tests__/mock-server";
+import { http, HttpResponse } from "msw";
+import { queryClient } from "@/lib/query-client";
+import { BillInsights } from "../presentation/bill-insights";
+import { emptyInsights } from "./fixtures";
 
-// SCENARIO: no insights available shows an empty state message
-// GIVEN: the system returns an empty list of insights (e.g. user has not added enough bills)
-// WHEN: the user views the insights panel
-// THEN: an empty state message is displayed (e.g. "Add more bills to unlock insights")
-// THEN: no insight cards are rendered
+describe("Insights empty state", () => {
+  beforeEach(() => {
+    queryClient.clear();
+    queryClient.setDefaultOptions({ queries: { retry: false } });
+  });
 
-// SCENARIO: a server error shows an error state without crashing
-// GIVEN: the insights data cannot be retrieved due to a server error
-// WHEN: the user views the insights panel
-// THEN: an error message is displayed
-// THEN: the panel remains usable and does not crash
+  it("REQ1: shows empty state message when no insights available", async () => {
+    server.use(
+      http.get("/api/bills/insights", () =>
+        HttpResponse.json({ data: emptyInsights }),
+      ),
+    );
+
+    render(<BillInsights />);
+
+    await screen.findByText(/no insights available yet/i);
+  });
+
+  it("REQ2: no section headings rendered in empty state", async () => {
+    server.use(
+      http.get("/api/bills/insights", () =>
+        HttpResponse.json({ data: emptyInsights }),
+      ),
+    );
+
+    render(<BillInsights />);
+
+    await screen.findByText(/no insights available yet/i);
+
+    expect(screen.queryByText("Forecast Alerts")).not.toBeInTheDocument();
+    expect(screen.queryByText("Spending Behavior")).not.toBeInTheDocument();
+    expect(screen.queryByText("Optimization Tips")).not.toBeInTheDocument();
+  });
+
+  it("REQ3: server error shows error message", async () => {
+    server.use(
+      http.get(
+        "/api/bills/insights",
+        () => new HttpResponse(null, { status: 500 }),
+      ),
+    );
+
+    render(<BillInsights />);
+
+    await screen.findByText("Failed to fetch insights");
+  });
+});

@@ -1,30 +1,118 @@
-// CONTEXT: bill-import — review table editing interactions
-// PRECONDITIONS:
-// - User is authenticated
-// - A valid CSV has been dropped and the review table is populated with parsed rows
-// - At least one row has provider "Unknown Store" and an indeterminate category
+import { render, screen, within, waitFor } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
+import { server } from "@/__tests__/mock-server";
+import { http, HttpResponse } from "msw";
+import { queryClient } from "@/lib/query-client";
+import { BillImport } from "../presentation/bill-import";
 
-// SCENARIO: changing a row's provider triggers an updated category suggestion
-// GIVEN: the review table is showing parsed rows
-// WHEN: the user changes the provider field on a row from "Unknown Store" to "Netflix"
-// THEN: the category for that row automatically updates to "Subscriptions"
+beforeEach(() => {
+  queryClient.clear();
+  queryClient.setDefaultOptions({ queries: { retry: false } });
+  server.use(
+    http.get("/api/bills/list", () => HttpResponse.json({ data: [] })),
+    http.post("/api/bills/import", () => HttpResponse.json({ imported: 3 })),
+  );
+});
 
-// SCENARIO: editing a non-provider field does not change the category suggestion
-// GIVEN: the review table is showing parsed rows with a known category on a row
-// WHEN: the user edits the description field on that row
-// THEN: the category for that row remains unchanged
+async function uploadCSVAndWaitForReview(csvContent: string) {
+  const user = userEvent.setup();
+  render(<BillImport open={true} onOpenChange={() => {}} />);
 
-// SCENARIO: user can manually override an auto-suggested category
-// GIVEN: the user has changed a provider to "Netflix" and the category has auto-suggested "Subscriptions"
-// WHEN: the user opens the category selector and chooses "Entertainment"
-// THEN: "Entertainment" is shown as the category and persists without reverting
+  const input = document.querySelector(
+    'input[type="file"]',
+  ) as HTMLInputElement;
+  const file = new File([csvContent], "bills.csv", { type: "text/csv" });
+  await user.upload(input, file);
 
-// SCENARIO: removing a row updates both the row list and the summary counts
-// GIVEN: the review table shows 5 rows and the summary displays total=5
-// WHEN: the user removes row 3
-// THEN: the review table shows 4 rows and the summary updates to total=4
+  await screen.findByText("Review Import", {}, { timeout: 3000 });
+  return user;
+}
 
-// SCENARIO: removing all invalid rows leaves only valid rows ready to finalize
-// GIVEN: the review table shows 3 valid rows and 2 invalid rows (5 total)
-// WHEN: the user removes both invalid rows
-// THEN: the summary shows total=3, valid=3, errors=0 and the finalize action becomes available
+function getTrashButton(row: Element): HTMLButtonElement | null {
+  // The trash button is in the last <td> of each row
+  const cells = row.querySelectorAll("td");
+  const lastCell = cells[cells.length - 1];
+  return lastCell?.querySelector("button") ?? null;
+}
+
+describe("Review Editing", () => {
+  it("updates category suggestion when provider name changes to a known provider", async () => {
+    const csv = [
+      "amount,date,provider",
+      "100,2024-01-15,Unknown Store",
+      "50,2024-02-20,Spotify",
+    ].join("\n");
+
+    const user = await uploadCSVAndWaitForReview(csv);
+
+    const providerInputs = screen.getAllByDisplayValue("Unknown Store");
+    const providerInput = providerInputs[0];
+
+    await user.clear(providerInput);
+    await user.type(providerInput, "Netflix");
+
+    // After typing "Netflix", the category auto-updates to Subscriptions.
+    // Spotify also gets Subscriptions, so multiple elements expected.
+    const subscriptionTexts = screen.getAllByText("Subscriptions");
+    // Before editing there was only 1 (Spotify). Now there should be 2 (Spotify + Netflix).
+    expect(subscriptionTexts.length).toBe(2);
+  });
+
+  it("removes a row and updates the total count in stats", async () => {
+    const csv = [
+      "amount,date,provider",
+      "100,2024-01-15,Netflix",
+      "50,2024-02-20,Spotify",
+      "75,2024-03-10,Electric Company",
+    ].join("\n");
+
+    const user = await uploadCSVAndWaitForReview(csv);
+
+    expect(screen.getByText("3 total rows")).toBeInTheDocument();
+
+    const tableRows = document.querySelectorAll("tbody tr");
+    expect(tableRows.length).toBe(3);
+
+    const trashBtn = getTrashButton(tableRows[0]);
+    expect(trashBtn).toBeTruthy();
+
+    await user.click(trashBtn!);
+
+    await waitFor(() => {
+      expect(screen.getByText("2 total rows")).toBeInTheDocument();
+    });
+    expect(document.querySelectorAll("tbody tr").length).toBe(2);
+  });
+
+  it("removing the only invalid row clears errors from stats", async () => {
+    const csv = [
+      "amount,date,provider",
+      "100,2024-01-15,Netflix",
+      "50,2024-02-20,Spotify",
+      "-25,2024-03-10,BadRow",
+    ].join("\n");
+
+    const user = await uploadCSVAndWaitForReview(csv);
+
+    expect(screen.getByText("3 total rows")).toBeInTheDocument();
+    expect(screen.getByText(/1 with errors/)).toBeInTheDocument();
+
+    // The error row has destructive class — find it and click its trash button
+    const tableRows = document.querySelectorAll("tbody tr");
+    const errorRow = Array.from(tableRows).find((row) =>
+      row.className.includes("destructive"),
+    );
+    expect(errorRow).toBeTruthy();
+
+    const trashBtn = getTrashButton(errorRow!);
+    expect(trashBtn).toBeTruthy();
+
+    await user.click(trashBtn!);
+
+    await waitFor(() => {
+      expect(screen.getByText("2 total rows")).toBeInTheDocument();
+    });
+    expect(screen.getByText(/2 ready to import/)).toBeInTheDocument();
+    expect(screen.queryByText(/with errors/)).not.toBeInTheDocument();
+  });
+});

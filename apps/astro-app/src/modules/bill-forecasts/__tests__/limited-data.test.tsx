@@ -30,8 +30,8 @@ describe("Forecast display with limited data quality", () => {
 
     await screen.findByText("By Category");
 
-    expect(screen.getByText("Utilities")).toBeInTheDocument();
-    expect(screen.getByText("$600.00/mo")).toBeInTheDocument();
+    expect(screen.getAllByText("Utilities").length).toBeGreaterThanOrEqual(1);
+    expect(screen.getByText(/\$600\.00\/mo/)).toBeInTheDocument();
   });
 
   it("displays wider confidence ranges reflecting higher uncertainty", async () => {
@@ -39,10 +39,10 @@ describe("Forecast display with limited data quality", () => {
 
     await screen.findByText("By Category");
 
-    // $600 prediction with $300–$900 spread (100% of predicted value)
-    expect(screen.getByText("$600.00")).toBeInTheDocument();
-    expect(screen.getByText(/\$300\.00/)).toBeInTheDocument();
-    expect(screen.getByText(/\$900\.00/)).toBeInTheDocument();
+    // $600 prediction with $300–$900 spread — values appear in multiple places
+    expect(screen.getAllByText("$600.00").length).toBeGreaterThanOrEqual(1);
+    expect(screen.getAllByText(/\$300\.00/).length).toBeGreaterThanOrEqual(1);
+    expect(screen.getAllByText(/\$900\.00/).length).toBeGreaterThanOrEqual(1);
   });
 
   it("renders yearly projection even with limited data", async () => {
