@@ -1,6 +1,7 @@
 import { test, expect, type Page } from "@playwright/test";
 import { interpreter } from "@/__e2e__/interpreter";
 import { loginAs } from "@/__e2e__/auth";
+import { getById } from "@/__e2e__/data-e2e";
 import {
   fullForecast,
   limitedForecast,
@@ -56,26 +57,40 @@ const commands = {
   },
 
   "see forecast content loaded": async (page: Page) => {
-    await expect(page.getByText("Projected Yearly Spending")).toBeVisible();
-    await expect(page.getByText("Monthly Forecast")).toBeVisible();
-    await expect(page.getByText("By Category")).toBeVisible();
+    await expect(
+      getById(page, "bill-forecasts.section.yearly-projection"),
+    ).toBeVisible();
+    await expect(
+      getById(page, "bill-forecasts.section.monthly-forecast"),
+    ).toBeVisible();
+    await expect(
+      getById(page, "bill-forecasts.section.by-category"),
+    ).toBeVisible();
   },
 
   "see limited data warning banner": async (page: Page) => {
-    await expect(page.getByText("Limited data available")).toBeVisible();
+    await expect(
+      getById(page, "bill-forecasts.state.limited-warning"),
+    ).toBeVisible();
   },
 
   "see empty state guidance": async (page: Page) => {
-    await expect(page.getByText(/no bill data available/i)).toBeVisible();
+    await expect(getById(page, "bill-forecasts.state.empty")).toBeVisible();
   },
 
   "see error state": async (page: Page) => {
-    await expect(page.getByText(/failed to/i)).toBeVisible({ timeout: 15000 });
+    await expect(getById(page, "bill-forecasts.state.error")).toBeVisible({
+      timeout: 15000,
+    });
   },
 
   "forecast sections are not rendered": async (page: Page) => {
-    await expect(page.getByText("Projected Yearly Spending")).not.toBeVisible();
-    await expect(page.getByText("Monthly Forecast")).not.toBeVisible();
+    await expect(
+      getById(page, "bill-forecasts.section.yearly-projection"),
+    ).not.toBeVisible();
+    await expect(
+      getById(page, "bill-forecasts.section.monthly-forecast"),
+    ).not.toBeVisible();
   },
 };
 

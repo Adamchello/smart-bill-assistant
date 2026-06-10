@@ -62,6 +62,7 @@ export function FileDropZone({
       </div>
 
       <div
+        data-e2e="bill-import.dropzone"
         className={`
           relative border-2 border-dashed rounded-lg p-12 text-center transition-colors
           ${isDragging ? "border-primary bg-primary/5" : "border-muted-foreground/25 hover:border-primary/50"}
@@ -90,7 +91,12 @@ export function FileDropZone({
           </div>
 
           <div>
-            <p className="font-medium">
+            <p
+              data-e2e={
+                isProcessing ? "bill-import.dropzone.processing" : undefined
+              }
+              className="font-medium"
+            >
               {isProcessing
                 ? "Processing file..."
                 : "Drag and drop your file here"}
@@ -107,7 +113,10 @@ export function FileDropZone({
       </div>
 
       {errors.length > 0 && (
-        <div className="rounded-md bg-destructive/10 border border-destructive/20 p-4">
+        <div
+          data-e2e="bill-import.dropzone.errors"
+          className="rounded-md bg-destructive/10 border border-destructive/20 p-4"
+        >
           <div className="flex items-start gap-3">
             <AlertCircle className="h-5 w-5 text-destructive shrink-0 mt-0.5" />
             <div className="space-y-1">

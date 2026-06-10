@@ -1,6 +1,7 @@
 import { test, expect, type Page } from "@playwright/test";
 import { interpreter } from "@/__e2e__/interpreter";
 import { loginAs } from "@/__e2e__/auth";
+import { getById } from "@/__e2e__/data-e2e";
 
 const commands = {
   "navigate to dashboard": async (page: Page) => {
@@ -9,9 +10,7 @@ const commands = {
 
   "open import panel": async (page: Page) => {
     await page.getByRole("button", { name: /import/i }).click();
-    await expect(
-      page.getByRole("heading", { name: "Import Bills" }),
-    ).toBeVisible();
+    await expect(getById(page, "bill-import.title")).toHaveText("Import Bills");
   },
 
   "upload valid CSV file": async (page: Page) => {
@@ -23,7 +22,7 @@ const commands = {
     ].join("\n");
 
     const fileChooserPromise = page.waitForEvent("filechooser");
-    await page.getByText(/click to browse/i).click();
+    await getById(page, "bill-import.dropzone").click();
     const fileChooser = await fileChooserPromise;
     await fileChooser.setFiles({
       name: "bills.csv",
@@ -33,53 +32,52 @@ const commands = {
   },
 
   "see review table with parsed rows": async (page: Page) => {
-    await expect(page.getByText("Review Import")).toBeVisible();
-    await expect(page.getByRole("table")).toBeVisible();
+    await expect(getById(page, "bill-import.title")).toHaveText(
+      "Review Import",
+    );
+    await expect(getById(page, "bill-import.table")).toBeVisible();
   },
 
   "see import summary section": async (page: Page) => {
-    await expect(page.getByText(/total rows/i)).toBeVisible();
-    await expect(page.getByText(/ready to import/i)).toBeVisible();
+    await expect(getById(page, "bill-import.stats")).toBeVisible();
   },
 
   "finalize import": async (page: Page) => {
-    await page.getByRole("button", { name: /import.*bills/i }).click();
+    await getById(page, "bill-import.button.finalize").click();
   },
 
   "see success confirmation": async (page: Page) => {
-    await expect(page.getByText(/bills imported/i)).toBeVisible();
+    await expect(getById(page, "bill-import.state.success")).toBeVisible();
   },
 
   "see error rows highlighted": async (page: Page) => {
-    await expect(page.locator("tr.bg-destructive\\/5").first()).toBeVisible();
+    await expect(getById(page, "bill-import.row.error").first()).toBeVisible();
   },
 
   "see duplicate indicator": async (page: Page) => {
-    await expect(page.getByText(/potential duplicate/i)).toBeVisible();
+    await expect(getById(page, "bill-import.stats.duplicates")).toBeVisible();
   },
 
   "see error indicators on row": async (page: Page) => {
-    await expect(page.getByText(/with errors/i)).toBeVisible();
+    await expect(getById(page, "bill-import.stats.errors")).toBeVisible();
   },
 
   "see file parse error": async (page: Page) => {
-    await expect(
-      page.locator("[data-testid='file-error'], .text-destructive").first(),
-    ).toBeVisible();
+    await expect(getById(page, "bill-import.dropzone.errors")).toBeVisible();
   },
 
   "see processing indicator": async (page: Page) => {
-    await expect(page.getByText("Processing file...")).toBeVisible();
+    await expect(
+      getById(page, "bill-import.dropzone.processing"),
+    ).toBeVisible();
   },
 
   "cancel import": async (page: Page) => {
-    await page.getByRole("button", { name: /cancel/i }).click();
+    await getById(page, "bill-import.button.cancel").click();
   },
 
   "import panel is closed": async (page: Page) => {
-    await expect(
-      page.getByRole("heading", { name: "Import Bills" }),
-    ).not.toBeVisible();
+    await expect(getById(page, "bill-import.title")).not.toBeVisible();
   },
 };
 

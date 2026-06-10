@@ -1,6 +1,7 @@
 import { test, expect, type Page } from "@playwright/test";
 import { interpreter } from "@/__e2e__/interpreter";
 import { loginAs } from "@/__e2e__/auth";
+import { getById } from "@/__e2e__/data-e2e";
 
 const commands = {
   "navigate to dashboard": async (page: Page) => {
@@ -9,48 +10,46 @@ const commands = {
 
   "open import panel": async (page: Page) => {
     await page.getByRole("button", { name: /import/i }).click();
-    await expect(
-      page.getByRole("heading", { name: "Import Bills" }),
-    ).toBeVisible();
+    await expect(getById(page, "bill-import.title")).toHaveText("Import Bills");
   },
 
   "drop valid Excel file": async (page: Page) => {
-    // Minimal xlsx binary would need the xlsx lib — use route mock instead
-    // For e2e, we test that the upload flow reaches the review state
-    const dropZone = page.getByText(/drag and drop/i);
-    await expect(dropZone).toBeVisible();
+    await expect(getById(page, "bill-import.dropzone")).toBeVisible();
     // Note: actual xlsx drop requires serving a fixture file from the test assets
     // This is a placeholder — real implementation needs fileChooser or fixture serving
   },
 
   "see review table": async (page: Page) => {
-    await expect(page.getByText("Review Import")).toBeVisible();
-    await expect(page.getByRole("table")).toBeVisible();
+    await expect(getById(page, "bill-import.title")).toHaveText(
+      "Review Import",
+    );
+    await expect(getById(page, "bill-import.table")).toBeVisible();
   },
 
   "see import summary section": async (page: Page) => {
-    await expect(page.getByText(/total rows/i)).toBeVisible();
-    await expect(page.getByText(/ready to import/i)).toBeVisible();
+    await expect(getById(page, "bill-import.stats")).toBeVisible();
   },
 
   "see error rows highlighted": async (page: Page) => {
-    await expect(page.getByText(/with errors/i)).toBeVisible();
+    await expect(getById(page, "bill-import.row.error").first()).toBeVisible();
   },
 
   "see file parse error": async (page: Page) => {
-    await expect(page.locator(".text-destructive").first()).toBeVisible();
+    await expect(getById(page, "bill-import.dropzone.errors")).toBeVisible();
   },
 
   "see processing indicator": async (page: Page) => {
-    await expect(page.getByText("Processing file...")).toBeVisible();
+    await expect(
+      getById(page, "bill-import.dropzone.processing"),
+    ).toBeVisible();
   },
 
   "finalize import": async (page: Page) => {
-    await page.getByRole("button", { name: /import.*bills/i }).click();
+    await getById(page, "bill-import.button.finalize").click();
   },
 
   "see success confirmation": async (page: Page) => {
-    await expect(page.getByText(/bills imported/i)).toBeVisible();
+    await expect(getById(page, "bill-import.state.success")).toBeVisible();
   },
 };
 

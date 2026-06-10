@@ -1,0 +1,16 @@
+export const BILL_IMPORT_E2E = [
+  "bill-import.title",
+  "bill-import.dropzone",
+  "bill-import.dropzone.processing",
+  "bill-import.dropzone.errors",
+  "bill-import.stats",
+  "bill-import.stats.errors",
+  "bill-import.stats.duplicates",
+  "bill-import.table",
+  "bill-import.row.error",
+  "bill-import.row.duplicate",
+  "bill-import.button.cancel",
+  "bill-import.button.finalize",
+  "bill-import.state.success",
+  "bill-import.state.error",
+] as const;

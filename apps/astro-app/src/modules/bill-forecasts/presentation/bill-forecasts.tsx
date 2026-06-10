@@ -39,7 +39,10 @@ export function BillForecasts() {
 
   if (query.isLoading) {
     return (
-      <div className="rounded-lg border border-border bg-card p-8 text-center">
+      <div
+        data-e2e="bill-forecasts.state.loading"
+        className="rounded-lg border border-border bg-card p-8 text-center"
+      >
         <p className="text-muted-foreground">Generating forecasts...</p>
       </div>
     );
@@ -47,7 +50,10 @@ export function BillForecasts() {
 
   if (query.error) {
     return (
-      <div className="rounded-md bg-destructive/10 border border-destructive/20 p-3">
+      <div
+        data-e2e="bill-forecasts.state.error"
+        className="rounded-md bg-destructive/10 border border-destructive/20 p-3"
+      >
         <p className="text-sm text-destructive">
           {query.error instanceof Error
             ? query.error.message
@@ -61,7 +67,10 @@ export function BillForecasts() {
 
   if (!forecast || forecast.categorySummaries.length === 0) {
     return (
-      <div className="rounded-lg border border-border bg-card p-8 text-center">
+      <div
+        data-e2e="bill-forecasts.state.empty"
+        className="rounded-lg border border-border bg-card p-8 text-center"
+      >
         <p className="text-muted-foreground">
           No bill data available for forecasting. Add some bills to see spending
           predictions.
@@ -74,7 +83,10 @@ export function BillForecasts() {
     <div className="space-y-6">
       {/* Data quality banner */}
       {forecast.dataQuality === "limited" && (
-        <div className="flex items-start gap-3 rounded-lg border border-yellow-500/20 bg-yellow-500/10 p-4">
+        <div
+          data-e2e="bill-forecasts.state.limited-warning"
+          className="flex items-start gap-3 rounded-lg border border-yellow-500/20 bg-yellow-500/10 p-4"
+        >
           <AlertTriangle className="h-5 w-5 text-yellow-600 dark:text-yellow-400 shrink-0 mt-0.5" />
           <div>
             <p className="text-sm font-medium text-yellow-600 dark:text-yellow-400">
@@ -89,7 +101,10 @@ export function BillForecasts() {
       )}
 
       {/* Yearly projection */}
-      <div className="rounded-lg border border-border bg-card p-6">
+      <div
+        data-e2e="bill-forecasts.section.yearly-projection"
+        className="rounded-lg border border-border bg-card p-6"
+      >
         <p className="text-sm text-muted-foreground mb-1">
           Projected Yearly Spending
         </p>
@@ -103,7 +118,7 @@ export function BillForecasts() {
       </div>
 
       {/* Monthly totals */}
-      <div>
+      <div data-e2e="bill-forecasts.section.monthly-forecast">
         <h3 className="text-lg font-semibold mb-3">Monthly Forecast</h3>
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
           {forecast.monthlyTotals.map((mt) => (
@@ -129,7 +144,7 @@ export function BillForecasts() {
       <Separator />
 
       {/* By Category */}
-      <div>
+      <div data-e2e="bill-forecasts.section.by-category">
         <h3 className="text-lg font-semibold mb-3">By Category</h3>
         <div className="space-y-3">
           {forecast.categorySummaries.map((cs) => (

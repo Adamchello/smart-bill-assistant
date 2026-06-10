@@ -28,7 +28,10 @@ export function ImportTable({
   onRemoveRow,
 }: ImportTableProps) {
   return (
-    <div className="border rounded-lg overflow-hidden max-h-[400px] overflow-y-auto  overflow-x-auto">
+    <div
+      data-e2e="bill-import.table"
+      className="border rounded-lg overflow-hidden max-h-[400px] overflow-y-auto  overflow-x-auto"
+    >
       <table className="w-full text-sm">
         <thead className="bg-muted sticky top-0">
           <tr>
@@ -43,6 +46,13 @@ export function ImportTable({
           {rows.map((row) => (
             <tr
               key={row.id}
+              data-e2e={
+                row.errors.length > 0
+                  ? "bill-import.row.error"
+                  : row.isDuplicate
+                    ? "bill-import.row.duplicate"
+                    : undefined
+              }
               className={`
                 ${row.errors.length > 0 ? "bg-destructive/5" : ""}
                 ${row.isDuplicate ? "bg-yellow-50" : ""}

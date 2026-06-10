@@ -43,7 +43,7 @@ export function BillImport({ open, onOpenChange }: BillImportProps) {
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-4xl max-h-[90vh] flex flex-col">
         <DialogHeader>
-          <DialogTitle>
+          <DialogTitle data-e2e="bill-import.title">
             {store.step === "upload" && "Import Bills"}
             {store.step === "review" && "Review Import"}
             {store.step === "importing" && "Importing..."}
@@ -77,7 +77,10 @@ export function BillImport({ open, onOpenChange }: BillImportProps) {
               </div>
               <ImportErrors rows={store.rows} />
               {store.importError && (
-                <div className="rounded-md bg-destructive/10 border border-destructive/20 p-3 shrink-0">
+                <div
+                  data-e2e="bill-import.state.error"
+                  className="rounded-md bg-destructive/10 border border-destructive/20 p-3 shrink-0"
+                >
                   <p className="text-sm text-destructive">
                     {store.importError instanceof Error
                       ? store.importError.message
@@ -86,7 +89,10 @@ export function BillImport({ open, onOpenChange }: BillImportProps) {
                 </div>
               )}
               {store.importStatus.successMessage && (
-                <div className="rounded-md bg-green-500/10 border border-green-500/20 p-3 shrink-0">
+                <div
+                  data-e2e="bill-import.state.success"
+                  className="rounded-md bg-green-500/10 border border-green-500/20 p-3 shrink-0"
+                >
                   <p className="text-sm text-green-600">
                     {store.importStatus.successMessage}
                   </p>
@@ -98,6 +104,7 @@ export function BillImport({ open, onOpenChange }: BillImportProps) {
 
         <DialogFooter>
           <Button
+            data-e2e="bill-import.button.cancel"
             variant="outline"
             onClick={() => onOpenChange(false)}
             disabled={store.isImporting}
@@ -106,6 +113,7 @@ export function BillImport({ open, onOpenChange }: BillImportProps) {
           </Button>
           {store.step === "review" && (
             <Button
+              data-e2e="bill-import.button.finalize"
               onClick={handleFinalize}
               disabled={store.validRows === 0 || store.isImporting}
             >
