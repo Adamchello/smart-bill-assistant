@@ -12,6 +12,7 @@ import type {
   InsightComparison,
 } from "../domain/insights";
 import type { Category } from "@/shared/domain/category";
+import type { DataE2E } from "@/__e2e__/data-e2e";
 import { useInsights } from "../core/store";
 import { ICON_MAP, SENTIMENT_STYLES } from "./insight-icons";
 import { BoldNumbers } from "./bold-numbers";
@@ -22,6 +23,7 @@ interface InsightSection {
   title: string;
   subtitle: string;
   types: InsightType[];
+  e2eId: DataE2E;
 }
 
 const SECTIONS: InsightSection[] = [
@@ -30,18 +32,21 @@ const SECTIONS: InsightSection[] = [
     subtitle:
       "Where your spending is heading — spikes, seasonal patterns, and budget trajectory.",
     types: ["spending-spike", "seasonal-pattern", "budget-trajectory"],
+    e2eId: "bill-insights.section.forecast-alerts",
   },
   {
     title: "Spending Behavior",
     subtitle:
       "How your spending habits are evolving — new categories, creep, and top expenses.",
     types: ["new-category", "subscription-creep", "top-spending-category"],
+    e2eId: "bill-insights.section.spending-behavior",
   },
   {
     title: "Optimization Tips",
     subtitle:
       "Suggestions for fine-tuning — consolidation opportunities, summaries, and balance.",
     types: ["category-consolidation", "month-over-month", "spending-diversity"],
+    e2eId: "bill-insights.section.optimization-tips",
   },
 ];
 
@@ -148,7 +153,10 @@ function InsightCard({ insight }: { insight: Insight }) {
   const Icon = ICON_MAP[insight.iconHint];
 
   return (
-    <div className={cn("rounded-lg border p-4", style.border, style.bg)}>
+    <div
+      data-e2e={`bill-insights.card.${insight.type}`}
+      className={cn("rounded-lg border p-4", style.border, style.bg)}
+    >
       <div className="flex items-start gap-3">
         <Icon className={cn("h-5 w-5 shrink-0 mt-0.5", style.iconColor)} />
         <div className="flex-1 min-w-0">
@@ -238,7 +246,10 @@ function GroupedInsightCard({ insights }: { insights: Insight[] }) {
   const { tip, trimmed } = extractSharedTip(insights.map((i) => i.description));
 
   return (
-    <div className={cn("rounded-lg border p-4", style.border, style.bg)}>
+    <div
+      data-e2e={`bill-insights.card.${insights[0].type}`}
+      className={cn("rounded-lg border p-4", style.border, style.bg)}
+    >
       <div className="flex items-start gap-3">
         <Icon className={cn("h-5 w-5 shrink-0 mt-0.5", style.iconColor)} />
         <div className="flex-1 min-w-0">
@@ -312,7 +323,10 @@ export function BillInsights() {
 
   if (query.isLoading) {
     return (
-      <div className="rounded-lg border border-border bg-card p-8 text-center">
+      <div
+        data-e2e="bill-insights.state.loading"
+        className="rounded-lg border border-border bg-card p-8 text-center"
+      >
         <p className="text-muted-foreground">Analysing your spending...</p>
       </div>
     );
@@ -320,7 +334,10 @@ export function BillInsights() {
 
   if (query.error) {
     return (
-      <div className="rounded-md bg-destructive/10 border border-destructive/20 p-3">
+      <div
+        data-e2e="bill-insights.state.error"
+        className="rounded-md bg-destructive/10 border border-destructive/20 p-3"
+      >
         <p className="text-sm text-destructive">
           {query.error instanceof Error
             ? query.error.message
@@ -334,7 +351,10 @@ export function BillInsights() {
 
   if (!result || result.insights.length === 0) {
     return (
-      <div className="rounded-lg border border-border bg-card p-8 text-center">
+      <div
+        data-e2e="bill-insights.state.empty"
+        className="rounded-lg border border-border bg-card p-8 text-center"
+      >
         <p className="text-muted-foreground">
           No insights available yet. Add more bills to unlock personalised
           spending insights.
@@ -346,7 +366,10 @@ export function BillInsights() {
   return (
     <div className="space-y-8">
       {result.dataQuality === "limited" && (
-        <div className="flex items-start gap-3 rounded-lg border border-yellow-500/20 bg-yellow-500/10 p-4">
+        <div
+          data-e2e="bill-insights.state.limited-warning"
+          className="flex items-start gap-3 rounded-lg border border-yellow-500/20 bg-yellow-500/10 p-4"
+        >
           <AlertTriangle className="h-5 w-5 text-yellow-600 dark:text-yellow-400 shrink-0 mt-0.5" />
           <div>
             <p className="text-sm font-medium text-yellow-600 dark:text-yellow-400">
@@ -367,7 +390,7 @@ export function BillInsights() {
         if (sectionInsights.length === 0) return null;
 
         return (
-          <div key={section.title}>
+          <div key={section.title} data-e2e={section.e2eId}>
             <div className="mb-3">
               <h3 className="text-lg font-semibold">{section.title}</h3>
               <p className="text-sm text-muted-foreground">

@@ -1,6 +1,7 @@
 import { test, expect, type Page } from "@playwright/test";
 import { interpreter } from "@/__e2e__/interpreter";
 import { loginAs } from "@/__e2e__/auth";
+import { getById } from "@/__e2e__/data-e2e";
 import type { InsightsResponse } from "../domain/insights";
 
 const INSIGHTS_URL = "**/api/bills/insights";
@@ -124,33 +125,49 @@ const commands = {
   },
 
   "see insight cards displayed": async (page: Page) => {
-    await expect(page.getByText("Forecast Alerts")).toBeVisible();
-    await expect(page.getByText("Spending Behavior")).toBeVisible();
+    await expect(
+      getById(page, "bill-insights.section.forecast-alerts"),
+    ).toBeVisible();
+    await expect(
+      getById(page, "bill-insights.section.spending-behavior"),
+    ).toBeVisible();
   },
 
   "see spending spike insight": async (page: Page) => {
-    await expect(page.getByText(/spending spike/i)).toBeVisible();
+    await expect(
+      getById(page, "bill-insights.card.spending-spike"),
+    ).toBeVisible();
   },
 
   "see new category insight": async (page: Page) => {
-    await expect(page.getByText(/new category/i)).toBeVisible();
+    await expect(
+      getById(page, "bill-insights.card.new-category"),
+    ).toBeVisible();
   },
 
   "see limited data warning": async (page: Page) => {
-    await expect(page.getByText("Limited data available")).toBeVisible();
+    await expect(
+      getById(page, "bill-insights.state.limited-warning"),
+    ).toBeVisible();
   },
 
   "see empty state message": async (page: Page) => {
-    await expect(page.getByText(/no insights available/i)).toBeVisible();
+    await expect(getById(page, "bill-insights.state.empty")).toBeVisible();
   },
 
   "see error state": async (page: Page) => {
-    await expect(page.getByText(/failed to/i)).toBeVisible({ timeout: 15000 });
+    await expect(getById(page, "bill-insights.state.error")).toBeVisible({
+      timeout: 15000,
+    });
   },
 
   "insight sections are not rendered": async (page: Page) => {
-    await expect(page.getByText("Forecast Alerts")).not.toBeVisible();
-    await expect(page.getByText("Spending Behavior")).not.toBeVisible();
+    await expect(
+      getById(page, "bill-insights.section.forecast-alerts"),
+    ).not.toBeVisible();
+    await expect(
+      getById(page, "bill-insights.section.spending-behavior"),
+    ).not.toBeVisible();
   },
 };
 
